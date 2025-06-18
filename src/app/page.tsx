@@ -6,6 +6,9 @@ import PlayerStatsBars from "@/components/PlayerStatsBars";
 import DeviceSelector from "@/components/DeviceSelector";
 import { useState, useEffect, useRef } from "react";
 
+// 统一API前缀
+const API_BASE = "https://106.14.125.195:8000";
+
 export default function Home() {
   const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
   const [distance, setDistance] = useState<string | undefined>(undefined);
@@ -24,7 +27,7 @@ export default function Home() {
   useEffect(() => {
     if (!deviceId) return;
     setDistance(undefined);
-    fetch(`http://106.14.125.195:8000/api/heatmap?device_id=${deviceId}`)
+    fetch(`${API_BASE}/api/heatmap?device_id=${deviceId}`)
       .then(res => res.json())
       .then(data => {
         const stats = data.distance_stats;
@@ -73,7 +76,7 @@ export default function Home() {
   // 拉取比赛列表
   useEffect(() => {
     if (location) {
-      fetch(`/api/matches/today?location=${location.lat},${location.lng}`)
+      fetch(`${API_BASE}/api/matches/today?location=${location.lat},${location.lng}`)
         .then(res => res.json())
         .then(data => setMatches(data.matches || []))
         .catch(() => setMatches([]));
@@ -104,7 +107,7 @@ export default function Home() {
     }
     // 上传轨迹到后端
     if (selectedMatch && trajectory.length > 5) {
-      fetch("/api/identity/recognize", {
+      fetch(`${API_BASE}/api/identity/recognize`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -131,7 +134,7 @@ export default function Home() {
   // 解绑逻辑
   const handleUnbind = () => {
     if (!selectedMatch) return;
-    fetch("/api/identity/unbind", {
+    fetch(`${API_BASE}/api/identity/unbind`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
