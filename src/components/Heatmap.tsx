@@ -12,7 +12,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
   useEffect(() => {
     if (!deviceId) return;
     setHeatmap({});
-    fetch(`https://106.14.125.195:8000/api/heatmap?device_id=${deviceId}`)
+    fetch(`https://106.14.125.195:3000/api/heatmap?device_id=${deviceId}`)
       .then(res => {
         if (!res.ok) throw new Error("网络错误");
         return res.json();
