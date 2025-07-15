@@ -7,7 +7,7 @@ import DeviceSelector from "@/components/DeviceSelector";
 import { useState, useEffect, useRef } from "react";
 
 // 统一API前缀
-const API_BASE = "https://106.14.125.195:3000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export default function Home() {
   const [deviceId, setDeviceId] = useState<string | undefined>(undefined);

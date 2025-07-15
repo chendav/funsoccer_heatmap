@@ -18,7 +18,8 @@ export default function DeviceSelector({ value, onChange }: {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("https://106.14.125.195:3000/api/device_ids")
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || "";
+    fetch(`${apiBase}/api/device_ids`)
       .then(res => {
         if (!res.ok) throw new Error("网络错误");
         return res.json();
