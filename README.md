@@ -1,3 +1,13 @@
+# 环境变量配置（重要）
+
+请在项目根目录下创建 `.env.local` 文件，内容如下：
+
+```
+NEXT_PUBLIC_API_BASE=https://api.funsoccer.app
+```
+
+这样所有API请求都会自动走HTTPS，避免混合内容报错。
+
 # soccer-heatmap-next
 
 本项目为“足球热力图展示前端”，基于 Next.js + Tailwind CSS 实现，主要功能为：
