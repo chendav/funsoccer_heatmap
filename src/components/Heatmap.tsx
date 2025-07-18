@@ -29,28 +29,27 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
       });
   }, [deviceId]);
 
-  // 只渲染选中球员的热力图
+  // 只渲染选中球员的点位（不做热力图累计）
+  let pointList: { x: number; y: number }[] = [];
   let grid: number[][] | null = null;
   if (trackId && heatmap[trackId]) {
-    grid = heatmap[trackId].map(row => row.map(val => val === 0 ? 0 : val * 100));
-    console.log('【调试】当前trackId:', trackId);
-    console.log('【调试】heatmap[trackId]原始数据:', heatmap[trackId]);
-    console.log('【调试】处理后的grid数据:', grid);
-    
-    // 统计非零点数量
-    let nonZeroCount = 0;
-    let maxVal = 0;
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
+    grid = heatmap[trackId];
+    // 遍历所有非零点，记录其归一化坐标
+    const rows = grid.length;
+    const cols = grid[0]?.length || 0;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         if (grid[i][j] > 0) {
-          nonZeroCount++;
-          if (grid[i][j] > maxVal) maxVal = grid[i][j];
+          // 归一化坐标（0~1）
+          const x = (j + 0.5) / cols;
+          const y = (i + 0.5) / rows;
+          pointList.push({ x, y });
         }
       }
     }
-    console.log('【调试】grid中非零点数量:', nonZeroCount);
-    console.log('【调试】grid中最大值:', maxVal);
-    console.log('【调试】grid维度:', grid.length, 'x', grid[0]?.length || 'undefined');
+    console.log('【调试】当前trackId:', trackId);
+    console.log('【调试】非零点数量:', pointList.length);
+    console.log('【调试】点坐标:', pointList);
   } else {
     console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: trackId ? !!heatmap[trackId] : false });
   }
@@ -113,50 +112,20 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
         <line x1={0.204*320} y1={480-0.157*480} x2={0.796*320} y2={480-0.157*480} stroke="#F5EFE2" strokeWidth="6" />
         {/* 竖线2 */}
         <line x1={0.796*320} y1={480} x2={0.796*320} y2={480-0.157*480} stroke="#F5EFE2" strokeWidth="6" />
+        {/* 轨迹点渲染 */}
+        {pointList.map((pt, idx) => (
+          <circle
+            key={idx}
+            cx={pt.x * 320}
+            cy={pt.y * 480}
+            r={12}
+            fill="#E5DED2"
+            opacity={0.5}
+          />
+        ))}
       </svg>
       {/* 热力图渲染 */}
-      <div
-        className="absolute z-20"
-        style={{ width: svgWidth, height: svgHeight, top: 0, left: 0, pointerEvents: "none" }}
-      >
-        <div
-          className="absolute inset-0 grid"
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gridTemplateRows: `repeat(${rows}, 1fr)`,
-            width: '100%',
-            height: '100%'
-          }}
-        >
-          {grid && grid.map((row, i) =>
-            row.map((val, j) => {
-              // 调试：输出每个格子的值
-              if (val > 0) {
-                console.log(`【调试】格子[${i}][${j}]值:`, val);
-              }
-              return (
-                <div
-                  key={`${i}-${j}`}
-                  className="rounded-full"
-                  style={{
-                    background: getHeatColor(val),
-                    width: val === 0 ? '100%' : '32px',
-                    height: val === 0 ? '100%' : '32px',
-                    opacity: val === 0 ? 0 : 1,
-                    margin: val === 0 ? undefined : 'auto',
-                    boxShadow: val !== 0 ? '0 0 8px 2px rgba(229,222,210,0.4)' : undefined,
-                    border: val !== 0 ? '2px solid #E5DED2' : undefined,
-                    transition: 'width 0.2s, height 0.2s, opacity 0.2s',
-                    pointerEvents: 'none',
-                    position: 'relative',
-                    zIndex: 30
-                  }}
-                />
-              );
-            })
-          )}
-        </div>
-      </div>
+      {/* 这里不再渲染格子，仅保留SVG点位渲染 */}
       {/* 占位，保证布局高度 */}
       <div style={{ width: svgWidth, height: svgHeight, visibility: "hidden" }} />
     </div>
