@@ -50,12 +50,23 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
   const rows = grid ? grid.length : 10;
   const cols = grid && grid[0] ? grid[0].length : 15;
 
+  // 自适应宽高，移动端下用vw/vh
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
+  const svgWidth = isMobile ? window.innerWidth * 0.95 : 320;
+  const svgHeight = isMobile ? window.innerWidth * 1.4 : 480;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('屏幕宽度:', window.innerWidth);
+    }
+  }, []);
+
   return (
-    <div className="relative flex flex-col items-center justify-center w-full mt-4 mb-2">
-      {/* 竖直方向标准比例的白色线框球场（所有结构旋转90度） */}
+    <div className="relative flex flex-col items-center justify-center w-full mt-4 mb-2 heatmap-container">
+      {/* 球场SVG热力图 */}
       <svg
         className="absolute z-10"
-        width="320" height="480" viewBox="0 0 320 480" fill="none"
+        width={svgWidth} height={svgHeight} viewBox="0 0 320 480" fill="none"
         style={{ top: 0, left: 0 }}
       >
         {/* 外框（四角点旋转） */}
@@ -82,7 +93,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
       {/* 热力图渲染 */}
       <div
         className="absolute z-20"
-        style={{ width: "320px", height: "480px", top: 0, left: 0, pointerEvents: "none" }}
+        style={{ width: svgWidth, height: svgHeight, top: 0, left: 0, pointerEvents: "none" }}
       >
         <div
           className="absolute inset-0 grid"
@@ -111,7 +122,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
         </div>
       </div>
       {/* 占位，保证布局高度 */}
-      <div style={{ width: "320px", height: "480px", visibility: "hidden" }} />
+      <div style={{ width: svgWidth, height: svgHeight, visibility: "hidden" }} />
     </div>
   );
 } 

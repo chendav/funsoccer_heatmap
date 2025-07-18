@@ -156,7 +156,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className="main-content">
       {/* 新增：比赛选择与身份识别区 */}
       <div className="w-full bg-[#F5F5F5] p-4 rounded mb-4 flex flex-col gap-2">
         <div className="font-bold text-lg text-[#6B6B6B]">比赛选择与身份识别</div>
@@ -193,13 +193,14 @@ export default function Home() {
       </div>
       {/* 主内容区 */}
       <div
-        className="flex flex-row items-stretch justify-end"
+        className="flex flex-row md:flex-row flex-col items-stretch justify-end"
         style={{
-          width: '100vw',
+          width: '100%',
+          maxWidth: '100vw',
         }}
       >
         {/* 主内容区靠右，最大宽度430px，右侧24px边距，竖直排列 */}
-        <div className="flex flex-col items-end w-full max-w-[430px] pr-6" style={{marginLeft: 'auto'}}>
+        <div className="flex flex-col items-end w-full max-w-[430px] pr-6 md:pr-6 pr-0" style={{marginLeft: 'auto'}}>
           {/* 顶部区域：两行字居中，右侧为设备和球员下拉菜单 */}
           <div className="flex flex-row items-center w-full mt-8 mb-4 justify-between">
             {/* 标题区，适度左移 */}
