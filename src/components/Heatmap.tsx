@@ -20,9 +20,12 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
       })
       .then(data => {
         const heatmapData = data.heatmap || {};
+        console.log('【调试】API返回的heatmap数据:', heatmapData);
+        console.log('【调试】heatmap的所有keys:', Object.keys(heatmapData));
         setHeatmap(heatmapData);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('【调试】API请求失败:', error);
       });
   }, [deviceId]);
 
@@ -30,6 +33,26 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
   let grid: number[][] | null = null;
   if (trackId && heatmap[trackId]) {
     grid = heatmap[trackId].map(row => row.map(val => val === 0 ? 0 : val * 100));
+    console.log('【调试】当前trackId:', trackId);
+    console.log('【调试】heatmap[trackId]原始数据:', heatmap[trackId]);
+    console.log('【调试】处理后的grid数据:', grid);
+    
+    // 统计非零点数量
+    let nonZeroCount = 0;
+    let maxVal = 0;
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (grid[i][j] > 0) {
+          nonZeroCount++;
+          if (grid[i][j] > maxVal) maxVal = grid[i][j];
+        }
+      }
+    }
+    console.log('【调试】grid中非零点数量:', nonZeroCount);
+    console.log('【调试】grid中最大值:', maxVal);
+    console.log('【调试】grid维度:', grid.length, 'x', grid[0]?.length || 'undefined');
+  } else {
+    console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: !!heatmap[trackId] });
   }
 
   // 计算最大值用于归一化
@@ -106,25 +129,31 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
           }}
         >
           {grid && grid.map((row, i) =>
-            row.map((val, j) => (
-              <div
-                key={`${i}-${j}`}
-                className="rounded-full"
-                style={{
-                  background: getHeatColor(val),
-                  width: val === 0 ? '100%' : '32px',
-                  height: val === 0 ? '100%' : '32px',
-                  opacity: val === 0 ? 0 : 1,
-                  margin: val === 0 ? undefined : 'auto',
-                  boxShadow: val !== 0 ? '0 0 8px 2px rgba(229,222,210,0.4)' : undefined,
-                  border: val !== 0 ? '2px solid #E5DED2' : undefined,
-                  transition: 'width 0.2s, height 0.2s, opacity 0.2s',
-                  pointerEvents: 'none',
-                  position: 'relative',
-                  zIndex: 30
-                }}
-              />
-            ))
+            row.map((val, j) => {
+              // 调试：输出每个格子的值
+              if (val > 0) {
+                console.log(`【调试】格子[${i}][${j}]值:`, val);
+              }
+              return (
+                <div
+                  key={`${i}-${j}`}
+                  className="rounded-full"
+                  style={{
+                    background: getHeatColor(val),
+                    width: val === 0 ? '100%' : '32px',
+                    height: val === 0 ? '100%' : '32px',
+                    opacity: val === 0 ? 0 : 1,
+                    margin: val === 0 ? undefined : 'auto',
+                    boxShadow: val !== 0 ? '0 0 8px 2px rgba(229,222,210,0.4)' : undefined,
+                    border: val !== 0 ? '2px solid #E5DED2' : undefined,
+                    transition: 'width 0.2s, height 0.2s, opacity 0.2s',
+                    pointerEvents: 'none',
+                    position: 'relative',
+                    zIndex: 30
+                  }}
+                />
+              );
+            })
           )}
         </div>
       </div>
