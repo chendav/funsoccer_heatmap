@@ -43,7 +43,8 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
   // 颜色映射：调试用，所有非零格子都渲染为红色，便于观察
   function getHeatColor(val: number) {
     if (val === 0) return "transparent";
-    return "#d60000"; // 红色
+    // 标题色 #E5DED2，半透明
+    return "rgba(229, 222, 210, 0.5)";
   }
 
   // 自动适配网格大小
@@ -111,10 +112,16 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
                 className="rounded-full"
                 style={{
                   background: getHeatColor(val),
-                  width: '100%',
-                  height: '100%',
-                  opacity: val === 0 ? 0 : 0.7,
-                  border: val !== 0 ? '2px solid #d60000' : undefined
+                  width: val === 0 ? '100%' : '32px',
+                  height: val === 0 ? '100%' : '32px',
+                  opacity: val === 0 ? 0 : 1,
+                  margin: val === 0 ? undefined : 'auto',
+                  boxShadow: val !== 0 ? '0 0 8px 2px rgba(229,222,210,0.4)' : undefined,
+                  border: val !== 0 ? '2px solid #E5DED2' : undefined,
+                  transition: 'width 0.2s, height 0.2s, opacity 0.2s',
+                  pointerEvents: 'none',
+                  position: 'relative',
+                  zIndex: 30
                 }}
               />
             ))
