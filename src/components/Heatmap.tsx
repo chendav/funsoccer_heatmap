@@ -30,7 +30,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
   }, [deviceId]);
 
   // 只渲染选中球员的点位（不做热力图累计）
-  let pointList: { x: number; y: number }[] = [];
+  const pointList: { x: number; y: number }[] = [];
   let grid: number[][] | null = null;
   if (trackId && heatmap[trackId]) {
     grid = heatmap[trackId];
@@ -54,24 +54,9 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
     console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: trackId ? !!heatmap[trackId] : false });
   }
 
-  // 计算最大值用于归一化
-  let maxVal = 0;
-  if (grid) {
-    for (let i = 0; i < grid.length; i++)
-      for (let j = 0; j < grid[i].length; j++)
-        if (grid[i][j] > maxVal) maxVal = grid[i][j];
-  }
-
-  // 颜色映射：调试用，所有非零格子都渲染为红色，便于观察
-  function getHeatColor(val: number) {
-    if (val === 0) return "transparent";
-    // 标题色 #E5DED2，半透明
-    return "rgba(229, 222, 210, 0.5)";
-  }
-
   // 自动适配网格大小
-  const rows = grid ? grid.length : 10;
-  const cols = grid && grid[0] ? grid[0].length : 15;
+  // const rows = grid ? grid.length : 10;
+  // const cols = grid && grid[0] ? grid[0].length : 15;
 
   // 自适应宽高，移动端下用vw/vh
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
