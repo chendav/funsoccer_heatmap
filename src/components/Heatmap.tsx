@@ -52,7 +52,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
     console.log('【调试】grid中最大值:', maxVal);
     console.log('【调试】grid维度:', grid.length, 'x', grid[0]?.length || 'undefined');
   } else {
-    console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: !!heatmap[trackId] });
+    console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: trackId ? !!heatmap[trackId] : false });
   }
 
   // 计算最大值用于归一化
