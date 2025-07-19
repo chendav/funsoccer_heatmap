@@ -6,10 +6,25 @@ import PlayerStatsBars from "@/components/PlayerStatsBars";
 import DeviceSelector from "@/components/DeviceSelector";
 import { useState, useEffect, useRef } from "react";
 
+// Landing page components
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import HowToUse from "@/components/landing/HowToUse";
+import Testimonials from "@/components/landing/Testimonials";
+import Pricing from "@/components/landing/Pricing";
+import CTA from "@/components/landing/CTA";
+import Footer from "@/components/landing/Footer";
+import LanguageToggle from "@/components/landing/LanguageToggle";
+import { type Language } from "@/lib/translations";
+
 // 统一API前缀
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export default function Home() {
+  // Language state
+  const [language, setLanguage] = useState<Language>("zh");
+  
+  // Existing states
   const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
   const [distance, setDistance] = useState<string | undefined>(undefined);
   const [trackIds, setTrackIds] = useState<string[]>([]);
@@ -23,6 +38,11 @@ export default function Home() {
   const [bindInfo, setBindInfo] = useState<{global_id: number, confidence: number} | null>(null);
   const [unbindStatus, setUnbindStatus] = useState<string | null>(null);
   const watchIdRef = useRef<number | null>(null);
+
+  // Language toggle function
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === "zh" ? "en" : "zh");
+  };
 
   useEffect(() => {
     if (!deviceId) return;
@@ -156,100 +176,147 @@ export default function Home() {
   };
 
   return (
-    <div className="main-content">
-      {/* 新增：比赛选择与身份识别区 */}
-      <div className="w-full bg-[#F5F5F5] p-4 rounded mb-4 flex flex-col gap-2">
-        <div className="font-bold text-lg text-[#6B6B6B]">比赛选择与身份识别</div>
-        {location ? null : <div className="text-red-600">正在获取定位...</div>}
-        <div className="flex flex-row gap-2 items-center">
-          <select
-            className="border rounded px-2 py-1"
-            value={selectedMatch || ""}
-            onChange={e => setSelectedMatch(e.target.value)}
-            disabled={matches.length === 0}
-          >
-            <option value="">选择比赛</option>
-            {matches.map(m => (
-              <option key={m.match_id} value={m.match_id}>{m.field_name || m.match_id}</option>
-            ))}
-          </select>
-          <button
-            className="bg-blue-600 text-white px-4 py-1 rounded disabled:bg-gray-400"
-            disabled={!selectedMatch || isCollecting}
-            onClick={startCollect}
-          >开始比赛</button>
-          {isCollecting && (
-            <button className="bg-gray-600 text-white px-3 py-1 rounded" onClick={stopCollect}>结束采集</button>
-          )}
-          {bindInfo && (
-            <button className="bg-red-600 text-white px-3 py-1 rounded" onClick={handleUnbind}>解绑</button>
-          )}
-        </div>
-        {recognizeStatus && <div className="text-blue-700 mt-2">{recognizeStatus}</div>}
-        {bindInfo && (
-          <div className="text-green-700 mt-2">绑定成功！您的编号为：{bindInfo.global_id}，置信度：{(bindInfo.confidence*100).toFixed(1)}%</div>
-        )}
-        {unbindStatus && <div className="text-orange-700 mt-2">{unbindStatus}</div>}
-      </div>
-      {/* 主内容区 */}
-      <div
-        className="flex flex-row md:flex-row flex-col items-stretch justify-end"
-        style={{
-          width: '100%',
-          maxWidth: '100vw',
-        }}
-      >
-        {/* 主内容区靠右，最大宽度430px，右侧24px边距，竖直排列 */}
-        <div className="flex flex-col items-end w-full max-w-[430px] pr-6 md:pr-6 pr-0" style={{marginLeft: 'auto'}}>
-          {/* 顶部区域：两行字居中，右侧为设备和球员下拉菜单 */}
-          <div className="flex flex-row items-center w-full mt-8 mb-4 justify-between">
-            {/* 标题区，适度左移 */}
-            <div
-              className="text-4xl font-bold tracking-widest text-[#E5DED2] leading-tight whitespace-nowrap pl-8"
-              style={{ transform: 'translateX(-48px)' }}
-            >
-              新华厂<br/>博格坎普
+    <div className="min-h-screen">
+      {/* Header with language toggle */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            {/* 右侧下拉菜单区 */}
-            <div className="flex flex-col gap-2 items-end min-w-[220px]">
-              <div className="flex flex-row items-center whitespace-nowrap">
-                <DeviceSelector value={deviceId} onChange={setDeviceId} />
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">趣踢 FunSoccer</h1>
+          </div>
+          <LanguageToggle language={language} onToggle={toggleLanguage} />
+        </div>
+      </header>
+
+      {/* Landing page sections */}
+      <Hero language={language} />
+      <Features language={language} />
+      <HowToUse language={language} />
+      <Testimonials language={language} />
+      <Pricing language={language} />
+      <CTA language={language} />
+
+      {/* Original heatmap section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">实时热力图分析</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">查看你的运动数据和热力图分析，了解你的表现</p>
+          </div>
+          
+          {/* 比赛选择与身份识别区 */}
+          <div className="w-full bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-100">
+            <div className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              比赛选择与身份识别
+            </div>
+            {location ? null : <div className="text-red-600 mb-4 flex items-center gap-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              正在获取定位...
+            </div>}
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4">
+              <select
+                className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-[200px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={selectedMatch || ""}
+                onChange={e => setSelectedMatch(e.target.value)}
+                disabled={matches.length === 0}
+              >
+                <option value="">选择比赛</option>
+                {matches.map(m => (
+                  <option key={m.match_id} value={m.match_id}>{m.field_name || m.match_id}</option>
+                ))}
+              </select>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  disabled={!selectedMatch || isCollecting}
+                  onClick={startCollect}
+                >开始比赛</button>
+                {isCollecting && (
+                  <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={stopCollect}>结束采集</button>
+                )}
+                {bindInfo && (
+                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={handleUnbind}>解绑</button>
+                )}
               </div>
-              {/* 绑定后自动展示个人编号 */}
-              {bindInfo ? (
-                <div className="text-green-700 font-bold">我的编号：{bindInfo.global_id}</div>
-              ) : trackIds.length > 0 && (
-                <select
-                  className="border border-red-200 rounded px-3 py-1 text-red-700 mt-2"
-                  value={selectedTrackId}
-                  onChange={e => setSelectedTrackId(e.target.value)}
-                >
-                  {trackIds.map(id => (
-                    <option key={id} value={id}>球员 {id}</option>
-                  ))}
-                </select>
-              )}
+            </div>
+            {recognizeStatus && <div className="text-blue-700 mb-2 flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              {recognizeStatus}
+            </div>}
+            {bindInfo && (
+              <div className="text-green-700 mb-2 flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                绑定成功！您的编号为：{bindInfo.global_id}，置信度：{(bindInfo.confidence*100).toFixed(1)}%
+              </div>
+            )}
+            {unbindStatus && <div className="text-orange-700 mb-2 flex items-center gap-2">
+              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              {unbindStatus}
+            </div>}
+          </div>
+
+          {/* 主内容区 */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8">
+            {/* 左侧信息区域 */}
+            <div className="flex flex-col items-center lg:items-start w-full lg:w-auto lg:min-w-[300px]">
+              {/* 标题区域 */}
+              <div className="text-center lg:text-left mb-6">
+                <div className="text-3xl md:text-4xl font-bold tracking-widest text-gray-800 leading-tight mb-4">
+                  新华厂<br/>博格坎普
+                </div>
+                {/* 设备选择区域 */}
+                <div className="flex flex-col gap-3 items-center lg:items-start">
+                  <DeviceSelector value={deviceId} onChange={setDeviceId} />
+                  {/* 绑定后自动展示个人编号 */}
+                  {bindInfo ? (
+                    <div className="text-green-700 font-bold text-lg">我的编号：{bindInfo.global_id}</div>
+                  ) : trackIds.length > 0 && (
+                    <select
+                      className="border border-red-200 rounded-lg px-4 py-2 text-red-700 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      value={selectedTrackId}
+                      onChange={e => setSelectedTrackId(e.target.value)}
+                    >
+                      {trackIds.map(id => (
+                        <option key={id} value={id}>球员 {id}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </div>
+              
+              {/* 球员信息卡片 */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-full px-6 py-3 text-lg text-blue-800 font-semibold shadow-md">球队：暂无</div>
+                <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-full px-6 py-3 text-lg text-green-800 font-semibold shadow-md">位置：前腰</div>
+              </div>
+            </div>
+
+            {/* 右侧热力图和统计区域 */}
+            <div className="flex flex-col items-center w-full lg:w-auto">
+              {/* 球场SVG热力图区 */}
+              <div className="mb-6">
+                <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
+              </div>
+              
+              {/* 属性条形图区 */}
+              <div className="mb-6 w-full max-w-md">
+                <PlayerStatsBars />
+              </div>
+              
+              {/* 底部统计卡片区 */}
+              <div className="w-full max-w-md">
+                <StatsCards distance={distance} />
+              </div>
             </div>
           </div>
-          {/* 球员信息卡片 */}
-          <div className="flex flex-row gap-4 w-full justify-end mb-6">
-            <div className="bg-[#E5DED2] rounded-full px-6 py-2 text-lg text-[#6B6B6B] font-semibold shadow">球队：暂无</div>
-            <div className="bg-[#E5DED2] rounded-full px-6 py-2 text-lg text-[#6B6B6B] font-semibold shadow">位置：前腰</div>
-          </div>
-          {/* 球场SVG热力图区 */}
-          <div className="w-full flex flex-row justify-end mb-6">
-            <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
-          </div>
-          {/* 属性条形图区 */}
-          <div className="w-full flex flex-row justify-end mb-6">
-            <PlayerStatsBars />
-          </div>
-          {/* 底部统计卡片区 */}
-          <div className="w-full flex flex-row justify-end mb-8">
-            <StatsCards distance={distance} />
-          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Footer */}
+      <Footer language={language} />
     </div>
   );
 }
