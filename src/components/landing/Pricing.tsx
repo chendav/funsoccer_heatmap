@@ -30,7 +30,7 @@ export default function Pricing({ language }: PricingProps) {
     {
       name: t.proVersion,
       description: t.proVersionDesc,
-      price: "¥99",
+      price: "¥10",
       features: [
         t.allFreeFeatures,
         t.detailedAnalysis,
