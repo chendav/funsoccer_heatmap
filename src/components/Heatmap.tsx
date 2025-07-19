@@ -50,6 +50,7 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
     console.log('【调试】当前trackId:', trackId);
     console.log('【调试】非零点数量:', pointList.length);
     console.log('【调试】点坐标:', pointList);
+    console.log('【调试】点坐标详情:', pointList.map(pt => ({x: pt.x, y: pt.y, cx: pt.x * 320, cy: pt.y * 480})));
   } else {
     console.log('【调试】trackId或heatmap[trackId]不存在:', { trackId, hasHeatmap: trackId ? !!heatmap[trackId] : false });
   }
@@ -103,9 +104,11 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
             key={idx}
             cx={pt.x * 320}
             cy={pt.y * 480}
-            r={12}
-            fill="#E5DED2"
-            opacity={0.5}
+            r={8}
+            fill="#FF4444"
+            opacity={0.8}
+            stroke="#CC0000"
+            strokeWidth="2"
           />
         ))}
       </svg>
