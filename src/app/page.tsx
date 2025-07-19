@@ -295,25 +295,25 @@ export default function Home() {
               
               {/* 球员信息卡片 */}
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-gray-800 font-semibold shadow-lg border border-white/30">球队：暂无</div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-gray-800 font-semibold shadow-lg border border-white/30">位置：前腰</div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">球队：暂无</div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">位置：前腰</div>
               </div>
             </div>
 
             {/* 右侧热力图和统计区域 */}
             <div className="flex flex-col items-center w-full lg:w-auto">
               {/* 球场SVG热力图区 */}
-              <div className="mb-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
+              <div className="mb-6">
                 <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
               </div>
               
               {/* 属性条形图区 */}
-              <div className="mb-6 w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
+              <div className="mb-6 w-full max-w-md">
                 <PlayerStatsBars />
               </div>
               
               {/* 底部统计卡片区 */}
-              <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
+              <div className="w-full max-w-md">
                 <StatsCards distance={distance} />
               </div>
             </div>
