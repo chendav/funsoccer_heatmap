@@ -104,11 +104,11 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
             key={idx}
             cx={pt.x * 320}
             cy={pt.y * 480}
-            r={8}
-            fill="#FF4444"
-            opacity={0.8}
-            stroke="#CC0000"
-            strokeWidth="2"
+            r={6}
+            fill="#1f2937"
+            opacity={0.6}
+            stroke="#374151"
+            strokeWidth="1"
           />
         ))}
       </svg>
