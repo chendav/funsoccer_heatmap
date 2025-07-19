@@ -105,9 +105,9 @@ export default function Heatmap({ deviceId, trackId }: { deviceId: string | unde
             cx={pt.x * 320}
             cy={pt.y * 480}
             r={6}
-            fill="#1f2937"
-            opacity={0.6}
-            stroke="#374151"
+            fill="#E5DED2"
+            opacity={0.7}
+            stroke="#E5DED2"
             strokeWidth="1"
           />
         ))}
