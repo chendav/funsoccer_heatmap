@@ -197,15 +197,23 @@ export default function Home() {
       <CTA language={language} />
 
       {/* Original heatmap section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-20 px-4 relative overflow-hidden" style={{
+        backgroundImage: 'url(/player_backgroud.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
+        {/* Background overlay for better readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">实时热力图分析</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">查看你的运动数据和热力图分析，了解你的表现</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">实时热力图分析</h2>
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto">查看你的运动数据和热力图分析，了解你的表现</p>
           </div>
           
           {/* 比赛选择与身份识别区 */}
-          <div className="w-full bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-100">
+          <div className="w-full bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg mb-8 border border-white/20">
             <div className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
               比赛选择与身份识别
@@ -262,7 +270,7 @@ export default function Home() {
             <div className="flex flex-col items-center lg:items-start w-full lg:w-auto lg:min-w-[300px]">
               {/* 标题区域 */}
               <div className="text-center lg:text-left mb-6">
-                <div className="text-3xl md:text-4xl font-bold tracking-widest text-gray-800 leading-tight mb-4">
+                <div className="text-3xl md:text-4xl font-bold tracking-widest text-white leading-tight mb-4 drop-shadow-lg">
                   新华厂<br/>博格坎普
                 </div>
                 {/* 设备选择区域 */}
@@ -287,25 +295,25 @@ export default function Home() {
               
               {/* 球员信息卡片 */}
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-full px-6 py-3 text-lg text-blue-800 font-semibold shadow-md">球队：暂无</div>
-                <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-full px-6 py-3 text-lg text-green-800 font-semibold shadow-md">位置：前腰</div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-gray-800 font-semibold shadow-lg border border-white/30">球队：暂无</div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-gray-800 font-semibold shadow-lg border border-white/30">位置：前腰</div>
               </div>
             </div>
 
             {/* 右侧热力图和统计区域 */}
             <div className="flex flex-col items-center w-full lg:w-auto">
               {/* 球场SVG热力图区 */}
-              <div className="mb-6">
+              <div className="mb-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
                 <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
               </div>
               
               {/* 属性条形图区 */}
-              <div className="mb-6 w-full max-w-md">
+              <div className="mb-6 w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
                 <PlayerStatsBars />
               </div>
               
               {/* 底部统计卡片区 */}
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/30">
                 <StatsCards distance={distance} />
               </div>
             </div>
