@@ -47,7 +47,7 @@ export default function CTA({ language }: CTAProps) {
         setSubmitStatus("error")
         setErrorMessage(data.message || t.networkError)
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus("error")
       setErrorMessage(t.networkError)
     } finally {

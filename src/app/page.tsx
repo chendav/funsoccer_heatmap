@@ -5,6 +5,7 @@ import Heatmap from "@/components/Heatmap";
 import PlayerStatsBars from "@/components/PlayerStatsBars";
 import DeviceSelector from "@/components/DeviceSelector";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 // Landing page components
 import Hero from "@/components/landing/Hero";
@@ -186,7 +187,7 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="/logo_funsoccer.png" alt="趣踢 FunSoccer" className="w-8 h-8" />
+            <Image src="/logo_funsoccer.png" alt="趣踢 FunSoccer" width={32} height={32} className="w-8 h-8" />
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">趣踢 FunSoccer</h1>
           </div>
           <LanguageToggle language={language} onToggle={toggleLanguage} />
