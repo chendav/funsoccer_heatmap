@@ -48,14 +48,14 @@ export const translations = {
     // Testimonials
     testimonialsTitle: "用户怎么说",
     testimonialsDescription: "听听真实用户的使用体验和反馈。",
-    testimonial1: "太棒了！以前踢球就是踢球，现在能看到自己的数据，感觉更有动力了。而且完全免费！",
-    testimonial2: "和朋友们比较跑动数据特别有意思，大家都更积极地踢球了。这个应用让踢球变得更有趣。",
-    testimonial3: "高级版的详细分析帮我发现了很多技术问题，物超所值。基础版免费已经很棒了。",
+    testimonial1: "太棒了！这个赛季我上了黄金段位",
+    testimonial2: "我就说我才是上海最厉害的前锋",
+    testimonial3: "高级版的详细分析帮我发现了球队很多战术问题。",
     user1: "小李",
     user1Title: "业余球员，工程师",
-    user2: "张明",
+    user2: "四哥",
     user2Title: "足球爱好者，学生",
-    user3: "王强",
+    user3: "王队",
     user3Title: "业余球队队长",
 
     // Pricing
@@ -156,17 +156,14 @@ export const translations = {
     // Testimonials
     testimonialsTitle: "What Our Users Say",
     testimonialsDescription: "Listen to real user experiences and feedback.",
-    testimonial1:
-      "Amazing! Football used to be just football, now I can see my data and feel more motivated. And it's completely free!",
-    testimonial2:
-      "Comparing running data with friends is really fun, everyone is more active in playing football. This app makes football more interesting.",
-    testimonial3:
-      "The detailed analysis in the premium version helped me discover many technical issues, great value for money. The free basic version is already awesome.",
+    testimonial1: "Amazing! I reached Gold rank this season",
+    testimonial2: "I told you I'm the best striker in Shanghai",
+    testimonial3: "The detailed analysis in the premium version helped me discover many tactical issues with our team.",
     user1: "Li",
     user1Title: "Amateur Player, Engineer",
-    user2: "Zhang Ming",
+    user2: "Brother Four",
     user2Title: "Football Enthusiast, Student",
-    user3: "Wang Qiang",
+    user3: "Captain Wang",
     user3Title: "Amateur Team Captain",
 
     // Pricing
