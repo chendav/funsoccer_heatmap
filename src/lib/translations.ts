@@ -139,6 +139,11 @@ export const translations = {
     termsOfService: "服务条款",
     privacyPolicy: "隐私政策",
     support: "客服支持",
+    
+    // Email subscription
+    submitting: "提交中...",
+    enterEmail: "请输入邮箱地址",
+    networkError: "网络错误，请检查连接后重试",
   },
   en: {
     // Header
@@ -286,6 +291,11 @@ export const translations = {
     termsOfService: "Terms of Service",
     privacyPolicy: "Privacy Policy",
     support: "Support",
+    
+    // Email subscription
+    submitting: "Submitting...",
+    enterEmail: "Please enter your email address",
+    networkError: "Network error, please check your connection and try again",
   },
 }
 
