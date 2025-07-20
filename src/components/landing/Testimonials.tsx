@@ -30,20 +30,27 @@ export default function Testimonials({ language }: TestimonialsProps) {
   ]
 
   return (
-    <section className="py-20 px-4 bg-white">
-      <div className="max-w-6xl mx-auto">
+    <section className="py-20 px-4 relative overflow-hidden" style={{
+      backgroundImage: 'url(/bg_ Testimonials.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      {/* Background overlay for better readability */}
+      <div className="absolute inset-0 bg-black/30"></div>
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">
             {t.testimonialsTitle}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             {t.testimonialsDescription}
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white/95 backdrop-blur-sm border border-white/20">
               <CardContent className="p-6">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => (
