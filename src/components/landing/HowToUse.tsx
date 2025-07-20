@@ -36,7 +36,7 @@ export default function HowToUse({ language }: HowToUseProps) {
 
   return (
     <section className="py-20 px-4 relative overflow-hidden" style={{
-      backgroundImage: 'url(/bg_How to Use.png)',
+      backgroundImage: 'url(/bg_HowToUse.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'

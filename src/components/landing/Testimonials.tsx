@@ -31,7 +31,7 @@ export default function Testimonials({ language }: TestimonialsProps) {
 
   return (
     <section className="py-20 px-4 relative overflow-hidden" style={{
-      backgroundImage: 'url(/bg_ Testimonials.png)',
+      backgroundImage: 'url(/bg_Testimonials.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
