@@ -4,6 +4,17 @@ import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
 import { translations, type Language } from "@/lib/translations"
 
+// 滚动到指定元素的函数
+const scrollToSection = (sectionId: string) => {
+  const element = document.getElementById(sectionId)
+  if (element) {
+    element.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }
+}
+
 interface HeroProps {
   language: Language
 }
@@ -31,7 +42,11 @@ export default function Hero({ language }: HeroProps) {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg">
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+              onClick={() => scrollToSection('cta-section')}
+            >
               {t.startFree}
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 hover:bg-gray-50">

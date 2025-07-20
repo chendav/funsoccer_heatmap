@@ -56,7 +56,7 @@ export default function CTA({ language }: CTAProps) {
   }
 
   return (
-    <section className="py-20 px-4 bg-blue-600">
+    <section id="cta-section" className="py-20 px-4 bg-blue-600">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
           {t.ctaTitle}
