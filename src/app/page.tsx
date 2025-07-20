@@ -314,12 +314,12 @@ export default function Home() {
               
               {/* 属性条形图区 */}
               <div className="mb-6 w-full max-w-md">
-                <PlayerStatsBars />
+                <PlayerStatsBars language={language} />
               </div>
               
               {/* 底部统计卡片区 */}
               <div className="w-full max-w-md">
-                <StatsCards distance={distance} />
+                <StatsCards distance={distance} language={language} />
               </div>
             </div>
           </div>

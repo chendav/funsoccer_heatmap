@@ -1,12 +1,21 @@
+import { translations, type Language } from "@/lib/translations";
+
+interface StatsCardsProps {
+  distance: string | undefined;
+  language: Language;
+}
+
 /**
  * 底部统计卡片组件（重构版）
  * 仅展示累计运动场次、累计跑动距离、排名三大卡片，底部横向排列，风格贴合设计图。
  */
-export default function StatsCards({ distance }: { distance: string | undefined }) {
+export default function StatsCards({ distance, language }: StatsCardsProps) {
+  const t = translations[language];
+  
   const stats = [
-    { label: "累计运动场次", value: "37" },
-    { label: "累计跑动距离", value: distance ?? "--" },
-    { label: "上海浦东前腰排名", value: "217" },
+    { label: t.totalMatches, value: "37" },
+    { label: t.totalDistance, value: distance ?? "--" },
+    { label: t.ranking, value: "217" },
   ];
   return (
     <div className="w-full flex justify-center gap-6 mt-12 mb-4">

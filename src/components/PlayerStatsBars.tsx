@@ -1,16 +1,23 @@
 import React from "react";
+import { translations, type Language } from "@/lib/translations";
+
+interface PlayerStatsBarsProps {
+  language: Language;
+}
 
 /**
  * 属性条形图区组件
  * 展示速度、体力、进攻、防守四项数据，竖直排列，风格贴合设计图。
  */
-export default function PlayerStatsBars() {
+export default function PlayerStatsBars({ language }: PlayerStatsBarsProps) {
+  const t = translations[language];
+  
   // 示例数据，可后续通过props传递
   const stats = [
-    { label: "速度", value: 10 },
-    { label: "体力", value: 12 },
-    { label: "进攻", value: 12 },
-    { label: "防守", value: 8 },
+    { label: t.speed, value: 10 },
+    { label: t.stamina, value: 12 },
+    { label: t.attack, value: 12 },
+    { label: t.defense, value: 8 },
   ];
   // 计算最大值用于归一化高度
   const maxVal = Math.max(...stats.map(s => s.value));
