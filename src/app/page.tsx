@@ -15,10 +15,15 @@ import Pricing from "@/components/landing/Pricing";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 import LanguageToggle from "@/components/landing/LanguageToggle";
-import { type Language } from "@/lib/translations";
+import { type Language, translations } from "@/lib/translations";
 
 // 统一API前缀
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
+
+// 获取翻译内容的辅助函数
+const t = (key: keyof typeof translations.zh, language: Language) => {
+  return translations[language][key]
+}
 
 export default function Home() {
   // Language state
@@ -107,20 +112,20 @@ export default function Home() {
   const startCollect = () => {
     setIsCollecting(true);
     setTrajectory([]);
-    setRecognizeStatus("正在采集轨迹，请围绕中心圈跑一圈...");
+    setRecognizeStatus(t("collectingTrajectory", language));
     if (navigator.geolocation) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         pos => {
           setTrajectory(traj => ([...traj, {lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now()}]));
         },
-        () => setRecognizeStatus("定位失败，请检查权限"),
+        () => setRecognizeStatus(t("locationFailed", language)),
         { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
       );
     }
   };
   const stopCollect = () => {
     setIsCollecting(false);
-    setRecognizeStatus("轨迹采集完成，正在识别...");
+    setRecognizeStatus(t("trajectoryComplete", language));
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
@@ -140,14 +145,14 @@ export default function Home() {
         .then(data => {
           if (data.status === "success") {
             setBindInfo({global_id: data.global_id, confidence: data.confidence});
-            setRecognizeStatus("已识别成功，请在摄像头对面边线放下手机，并保持在摄像头视野内。");
+            setRecognizeStatus(t("recognitionSuccess", language));
           } else {
-            setRecognizeStatus(data.message || "识别失败，请重试");
+            setRecognizeStatus(data.message || t("recognitionFailed", language));
           }
         })
-        .catch(() => setRecognizeStatus("识别请求失败"));
+        .catch(() => setRecognizeStatus(t("recognitionRequestFailed", language)));
     } else {
-      setRecognizeStatus("轨迹点过少，采集失败");
+      setRecognizeStatus(t("trajectoryTooFew", language));
     }
   };
 
@@ -167,12 +172,12 @@ export default function Home() {
         if (data.status === "success") {
           setBindInfo(null);
           setRecognizeStatus(null);
-          setUnbindStatus("解绑成功，可重新采集身份");
+          setUnbindStatus(t("unbindSuccess", language));
         } else {
-          setUnbindStatus(data.message || "解绑失败");
+          setUnbindStatus(data.message || t("unbindFailed", language));
         }
       })
-      .catch(() => setUnbindStatus("解绑请求失败"));
+      .catch(() => setUnbindStatus(t("unbindRequestFailed", language)));
   };
 
   return (
@@ -208,19 +213,19 @@ export default function Home() {
         
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">实时热力图分析</h2>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">查看你的运动数据和热力图分析，了解你的表现</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">{t("heatmapTitle", language)}</h2>
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto">{t("heatmapDescription", language)}</p>
           </div>
           
           {/* 比赛选择与身份识别区 */}
           <div className="w-full bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg mb-8 border border-white/20">
             <div className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              比赛选择与身份识别
+              {t("matchSelectionTitle", language)}
             </div>
             {location ? null : <div className="text-red-600 mb-4 flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              正在获取定位...
+              {t("gettingLocation", language)}
             </div>}
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4">
               <select
@@ -229,7 +234,7 @@ export default function Home() {
                 onChange={e => setSelectedMatch(e.target.value)}
                 disabled={matches.length === 0}
               >
-                <option value="">选择比赛</option>
+                <option value="">{t("selectMatch", language)}</option>
                 {matches.map(m => (
                   <option key={m.match_id} value={m.match_id}>{m.field_name || m.match_id}</option>
                 ))}
@@ -239,12 +244,12 @@ export default function Home() {
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                   disabled={!selectedMatch || isCollecting}
                   onClick={startCollect}
-                >开始比赛</button>
+                >{t("startMatch", language)}</button>
                 {isCollecting && (
-                  <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={stopCollect}>结束采集</button>
+                  <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={stopCollect}>{t("endCollection", language)}</button>
                 )}
                 {bindInfo && (
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={handleUnbind}>解绑</button>
+                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={handleUnbind}>{t("unbind", language)}</button>
                 )}
               </div>
             </div>
@@ -255,7 +260,7 @@ export default function Home() {
             {bindInfo && (
               <div className="text-green-700 mb-2 flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                绑定成功！您的编号为：{bindInfo.global_id}，置信度：{(bindInfo.confidence*100).toFixed(1)}%
+                {t("bindingSuccess", language)}{bindInfo.global_id}，{t("confidence", language)}{(bindInfo.confidence*100).toFixed(1)}%
               </div>
             )}
             {unbindStatus && <div className="text-orange-700 mb-2 flex items-center gap-2">
@@ -271,14 +276,14 @@ export default function Home() {
               {/* 标题区域 */}
               <div className="text-center lg:text-left mb-6">
                 <div className="text-3xl md:text-4xl font-bold tracking-widest text-white leading-tight mb-4 drop-shadow-lg">
-                  新华厂<br/>博格坎普
+                  {t("teamName", language)}<br/>{t("playerName", language)}
                 </div>
                 {/* 设备选择区域 */}
                 <div className="flex flex-col gap-3 items-center lg:items-start">
                   <DeviceSelector value={deviceId} onChange={setDeviceId} />
                   {/* 绑定后自动展示个人编号 */}
                   {bindInfo ? (
-                    <div className="text-green-700 font-bold text-lg">我的编号：{bindInfo.global_id}</div>
+                    <div className="text-green-700 font-bold text-lg">{t("myNumber", language)}{bindInfo.global_id}</div>
                   ) : trackIds.length > 0 && (
                     <select
                       className="border border-red-200 rounded-lg px-4 py-2 text-red-700 focus:ring-2 focus:ring-red-500 focus:border-red-500"
@@ -286,7 +291,7 @@ export default function Home() {
                       onChange={e => setSelectedTrackId(e.target.value)}
                     >
                       {trackIds.map(id => (
-                        <option key={id} value={id}>球员 {id}</option>
+                        <option key={id} value={id}>{t("player", language)} {id}</option>
                       ))}
                     </select>
                   )}
@@ -295,8 +300,8 @@ export default function Home() {
               
               {/* 球员信息卡片 */}
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">球队：暂无</div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">位置：前腰</div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">{t("team", language)}</div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">{t("position", language)}</div>
               </div>
             </div>
 
