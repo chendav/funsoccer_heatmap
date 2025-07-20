@@ -123,6 +123,9 @@ export const translations = {
     collectingTrajectory: "正在采集轨迹，请围绕中心圈跑一圈...",
     locationFailed: "定位失败，请检查权限",
     trajectoryComplete: "轨迹采集完成，正在识别...",
+    footerDescription: "让每一脚踢球都有意义。在合作球场踢球，免费获取专业运动数据分析。",
+    product: "产品",
+    footerSupport: "支持",
 
     // Footer
     copyright: "© 2024 趣踢 FunSoccer. 保留所有权利。",
@@ -260,6 +263,9 @@ export const translations = {
     collectingTrajectory: "Collecting trajectory, please run around the center circle...",
     locationFailed: "Location failed, please check permissions",
     trajectoryComplete: "Trajectory collection complete, recognizing...",
+    footerDescription: "Make every kick meaningful. Play at partner fields and get free professional sports data analysis.",
+    product: "Product",
+    footerSupport: "Support",
 
     // Footer
     copyright: "© 2024 FunSoccer. All rights reserved.",
