@@ -29,7 +29,7 @@ export default function CTA({ language }: CTAProps) {
     setErrorMessage("")
 
     try {
-      const response = await fetch(`http://47.239.73.57:8000/subscription/subscribe`, {
+      const response = await fetch(`https://47.239.73.57:8000/subscription/subscribe`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
