@@ -20,7 +20,7 @@ export default function PlayerHeader() {
       </div>
       {/* 球员姓名 */}
       <div className="text-4xl font-bold tracking-widest text-[#E5DED2] mb-2 text-center leading-tight">
-        新华厂<br/>博格坎普
+        新华厂<br/>第一前腰
       </div>
       {/* 球队与位置信息卡片 */}
       <div className="flex gap-4 mt-2">
