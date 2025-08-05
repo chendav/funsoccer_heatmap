@@ -100,13 +100,30 @@ export default function Home() {
     }
   }, [location]);
 
-  // 拉取比赛列表
+  // 拉取比赛列表（临时使用测试数据）
   useEffect(() => {
     if (location) {
-      fetch(`${API_BASE}/api/matches/today?location=${location.lat},${location.lng}`)
-        .then(res => res.json())
-        .then(data => setMatches(data.matches || []))
-        .catch(() => setMatches([]));
+      // 临时注释掉不存在的API调用
+      // fetch(`${API_BASE}/api/matches/today?location=${location.lat},${location.lng}`)
+      //   .then(res => res.json())
+      //   .then(data => setMatches(data.matches || []))
+      //   .catch(() => setMatches([]));
+      
+      // 临时设置测试比赛数据
+      setMatches([
+        { 
+          match_id: 'test_match_001', 
+          match_name: '测试比赛', 
+          location: '测试球场',
+          start_time: new Date().toISOString()
+        }
+      ]);
+      
+      // 自动选择第一个比赛
+      setSelectedMatch('test_match_001');
+      
+      // 临时设置测试的绑定信息（用于测试球员统计功能）
+      setBindInfo({ global_id: 1, confidence: 0.95 });
     }
   }, [location]);
 

@@ -45,14 +45,14 @@ export default function StatsCards({
   );
 
   // 调试信息（临时添加）
-  console.log('StatsCards Debug:', { 
-    matchId, 
-    globalId, 
-    playerStats, 
-    matchSummary, 
-    playerLoading, 
-    summaryLoading 
-  });
+  console.log('StatsCards Debug:');
+  console.log('  matchId:', matchId);
+  console.log('  globalId:', globalId);
+  console.log('  playerStats:', playerStats);
+  console.log('  matchSummary:', matchSummary);
+  console.log('  playerLoading:', playerLoading);
+  console.log('  summaryLoading:', summaryLoading);
+  console.log('  enabled:', !!matchId && globalId !== undefined);
 
   // 计算数据值
   const getStatsValues = () => {

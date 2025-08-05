@@ -28,13 +28,12 @@ export default function PlayerStatsBars({
   );
 
   // 调试信息（临时添加）
-  console.log('PlayerStatsBars Debug:', { 
-    matchId, 
-    globalId, 
-    playerStats, 
-    loading,
-    enabled: !!matchId && globalId !== undefined
-  });
+  console.log('PlayerStatsBars Debug:');
+  console.log('  matchId:', matchId);
+  console.log('  globalId:', globalId);
+  console.log('  playerStats:', playerStats);
+  console.log('  loading:', loading);
+  console.log('  enabled:', !!matchId && globalId !== undefined);
 
   // 计算显示数据
   const getDisplayStats = () => {
