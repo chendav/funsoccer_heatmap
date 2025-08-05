@@ -113,9 +113,7 @@ export default function Home() {
       setMatches([
         { 
           match_id: 'test_match_001', 
-          match_name: '测试比赛', 
-          location: '测试球场',
-          start_time: new Date().toISOString()
+          field_name: '测试球场'
         }
       ]);
       
