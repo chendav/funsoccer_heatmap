@@ -3,6 +3,7 @@
 import StatsCards from "@/components/StatsCards";
 import Heatmap from "@/components/Heatmap";
 import PlayerStatsBars from "@/components/PlayerStatsBars";
+import PlayerRankings from "@/components/PlayerRankings";
 import DeviceSelector from "@/components/DeviceSelector";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -271,28 +272,30 @@ export default function Home() {
           </div>
 
           {/* 主内容区 */}
-          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start justify-center gap-6 lg:gap-8">
             {/* 左侧信息区域 */}
-            <div className="flex flex-col items-center lg:items-start w-full lg:w-auto lg:min-w-[300px]">
+            <div className="flex flex-col items-center xl:items-start w-full xl:w-auto xl:min-w-[280px] order-2 xl:order-1">
               {/* 标题区域 */}
-              <div className="text-center lg:text-left mb-6">
-                <div className="text-3xl md:text-4xl font-bold tracking-widest text-white leading-tight mb-4 drop-shadow-lg">
+              <div className="text-center xl:text-left mb-4 lg:mb-6">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-widest text-white leading-tight mb-4 drop-shadow-lg">
                   {t("teamName", language)}<br/>{t("playerName", language)}
                 </div>
                 {/* 设备选择区域 */}
-                <div className="flex flex-col gap-3 items-center lg:items-start">
+                <div className="flex flex-col gap-3 items-center xl:items-start">
                   <DeviceSelector value={deviceId} onChange={setDeviceId} />
                   {/* 绑定后自动展示个人编号 */}
                   {bindInfo ? (
-                    <div className="text-green-700 font-bold text-lg">{t("myNumber", language)}{bindInfo.global_id}</div>
+                    <div className="text-green-400 font-bold text-lg bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm border border-green-400/30">
+                      {t("myNumber", language)}{bindInfo.global_id}
+                    </div>
                   ) : trackIds.length > 0 && (
                     <select
-                      className="border border-red-200 rounded-lg px-4 py-2 text-red-700 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="border border-white/30 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-white/50 focus:border-white/50"
                       value={selectedTrackId}
                       onChange={e => setSelectedTrackId(e.target.value)}
                     >
                       {trackIds.map(id => (
-                        <option key={id} value={id}>{t("player", language)} {id}</option>
+                        <option key={id} value={id} className="text-gray-900">{t("player", language)} {id}</option>
                       ))}
                     </select>
                   )}
@@ -300,32 +303,119 @@ export default function Home() {
               </div>
               
               {/* 球员信息卡片 */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">{t("team", language)}</div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-lg text-white font-semibold shadow-lg border border-white/30">{t("position", language)}</div>
+              <div className="flex flex-row gap-2 sm:gap-3 mb-4 lg:mb-6 flex-wrap justify-center xl:justify-start">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg text-white font-semibold shadow-lg border border-white/30">
+                  {t("team", language)}
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg text-white font-semibold shadow-lg border border-white/30">
+                  {t("position", language)}
+                </div>
+              </div>
+
+              {/* 移动端统计数据预览 */}
+              <div className="xl:hidden w-full max-w-sm mb-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <h4 className="text-white font-semibold mb-3 text-center">实时数据</h4>
+                  <div className="grid grid-cols-2 gap-3 text-center">
+                    {bindInfo && (
+                      <>
+                        <div className="bg-white/10 rounded-lg p-3">
+                          <div className="text-white/80 text-xs mb-1">跑动距离</div>
+                          <div className="text-white font-bold">-- km</div>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-3">
+                          <div className="text-white/80 text-xs mb-1">平均速度</div>
+                          <div className="text-white font-bold">-- km/h</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* 右侧热力图和统计区域 */}
-            <div className="flex flex-col items-center w-full lg:w-auto">
+            <div className="flex flex-col items-center w-full xl:w-auto order-1 xl:order-2">
               {/* 球场SVG热力图区 */}
-              <div className="mb-6">
-                <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
+              <div className="mb-4 lg:mb-6 w-full max-w-lg">
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
+                  <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
+                </div>
               </div>
               
+              {/* 桌面端统计区域 */}
+              <div className="hidden xl:block w-full max-w-md">
+                {/* 属性条形图区 */}
+                <div className="mb-6">
+                  <PlayerStatsBars 
+                    language={language} 
+                    matchId={selectedMatch}
+                    globalId={bindInfo?.global_id}
+                  />
+                </div>
+                
+                {/* 底部统计卡片区 */}
+                <div>
+                  <StatsCards 
+                    matchId={selectedMatch}
+                    globalId={bindInfo?.global_id}
+                    language={language}
+                    fallbackDistance={distance} // 保持向后兼容
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 移动端统计区域 */}
+          <div className="xl:hidden w-full mt-8">
+            <div className="max-w-2xl mx-auto">
               {/* 属性条形图区 */}
-              <div className="mb-6 w-full max-w-md">
-                <PlayerStatsBars language={language} />
+              <div className="mb-8 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <h4 className="text-white font-semibold mb-4 text-center">运动数据</h4>
+                <PlayerStatsBars 
+                  language={language} 
+                  matchId={selectedMatch}
+                  globalId={bindInfo?.global_id}
+                />
               </div>
               
               {/* 底部统计卡片区 */}
-              <div className="w-full max-w-md">
-                <StatsCards distance={distance} language={language} />
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <h4 className="text-white font-semibold mb-4 text-center">统计概览</h4>
+                <StatsCards 
+                  matchId={selectedMatch}
+                  globalId={bindInfo?.global_id}
+                  language={language}
+                  fallbackDistance={distance} // 保持向后兼容
+                />
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* 球员排行榜区域 */}
+      {selectedMatch && (
+        <section className="py-12 sm:py-16 px-4 bg-gradient-to-b from-gray-50 to-white">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                实时球员统计
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+                查看比赛中所有球员的跑动数据和表现排行
+              </p>
+            </div>
+            
+            <PlayerRankings 
+              matchId={selectedMatch}
+              language={language}
+              className="max-w-3xl mx-auto"
+            />
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <Footer language={language} />
