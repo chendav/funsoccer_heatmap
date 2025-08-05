@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from "react";
-import { translations, type Language } from "@/lib/translations";
+// import { translations, type Language } from "@/lib/translations"; // TODO: 实现国际化功能时使用
+import { type Language } from "@/lib/translations";
 import { usePlayerStats } from "@/hooks/usePlayerStats";
 import { 
   formatDistance, 
@@ -26,7 +27,7 @@ type SortType = 'distance' | 'maxSpeed' | 'avgSpeed' | 'activeTime';
 
 export default function PlayerRankings({ 
   matchId, 
-  language, 
+  language: _language, // 暂时不使用，为将来国际化功能保留
   className = "" 
 }: PlayerRankingsProps) {
   // const t = translations[language]; // TODO: 实现国际化功能时使用
