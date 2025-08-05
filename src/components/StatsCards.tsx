@@ -44,6 +44,16 @@ export default function StatsCards({
     </div>
   );
 
+  // 调试信息（临时添加）
+  console.log('StatsCards Debug:', { 
+    matchId, 
+    globalId, 
+    playerStats, 
+    matchSummary, 
+    playerLoading, 
+    summaryLoading 
+  });
+
   // 计算数据值
   const getStatsValues = () => {
     // 如果有球员统计数据，使用动态数据

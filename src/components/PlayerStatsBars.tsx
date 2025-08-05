@@ -27,6 +27,15 @@ export default function PlayerStatsBars({
     { enabled: !!matchId && globalId !== undefined }
   );
 
+  // 调试信息（临时添加）
+  console.log('PlayerStatsBars Debug:', { 
+    matchId, 
+    globalId, 
+    playerStats, 
+    loading,
+    enabled: !!matchId && globalId !== undefined
+  });
+
   // 计算显示数据
   const getDisplayStats = () => {
     if (playerStats) {
