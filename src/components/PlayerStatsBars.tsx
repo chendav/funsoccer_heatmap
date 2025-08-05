@@ -27,13 +27,7 @@ export default function PlayerStatsBars({
     { enabled: !!matchId && globalId !== undefined }
   );
 
-  // 调试信息（临时添加）
-  console.log('PlayerStatsBars Debug:');
-  console.log('  matchId:', matchId);
-  console.log('  globalId:', globalId);
-  console.log('  playerStats:', playerStats);
-  console.log('  loading:', loading);
-  console.log('  enabled:', !!matchId && globalId !== undefined);
+  // 移除调试信息 - 生产环境
 
   // 计算显示数据
   const getDisplayStats = () => {

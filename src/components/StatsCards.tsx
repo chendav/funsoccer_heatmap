@@ -44,15 +44,7 @@ export default function StatsCards({
     </div>
   );
 
-  // 调试信息（临时添加）
-  console.log('StatsCards Debug:');
-  console.log('  matchId:', matchId);
-  console.log('  globalId:', globalId);
-  console.log('  playerStats:', playerStats);
-  console.log('  matchSummary:', matchSummary);
-  console.log('  playerLoading:', playerLoading);
-  console.log('  summaryLoading:', summaryLoading);
-  console.log('  enabled:', !!matchId && globalId !== undefined);
+  // 移除调试信息 - 生产环境
 
   // 计算数据值
   const getStatsValues = () => {
