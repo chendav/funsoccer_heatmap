@@ -1,7 +1,7 @@
 import React from "react";
 import { translations, type Language } from "@/lib/translations";
 import { useSinglePlayerStats } from "@/hooks/usePlayerStats";
-import { formatSpeed } from "@/lib/playerStatsApi";
+// import { formatSpeed } from "@/lib/playerStatsApi"; // TODO: 使用格式化功能时导入
 
 interface PlayerStatsBarsProps {
   language: Language;

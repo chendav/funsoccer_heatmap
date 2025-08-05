@@ -29,7 +29,7 @@ export default function PlayerRankings({
   language, 
   className = "" 
 }: PlayerRankingsProps) {
-  const t = translations[language];
+  // const t = translations[language]; // TODO: 实现国际化功能时使用
   const [sortBy, setSortBy] = useState<SortType>('distance');
   const [showAll, setShowAll] = useState(false);
 

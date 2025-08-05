@@ -10,7 +10,7 @@ import {
   MatchStatsSummary,
   RealtimeStatsSummary,
   PlayerStatsApiError,
-  type MatchPlayerStatsResponse,
+  // type MatchPlayerStatsResponse, // TODO: 需要类型时导入
 } from '@/lib/playerStatsApi';
 
 // Hook状态类型定义

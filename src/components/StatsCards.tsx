@@ -1,6 +1,7 @@
 import { translations, type Language } from "@/lib/translations";
 import { useSinglePlayerStats, useMatchStatsSummary } from "@/hooks/usePlayerStats";
-import { formatDistance, formatActiveTime } from "@/lib/playerStatsApi";
+import { formatDistance } from "@/lib/playerStatsApi";
+// import { formatActiveTime } from "@/lib/playerStatsApi"; // TODO: 使用活跃时间格式化时导入
 
 interface StatsCardsProps {
   matchId?: string;

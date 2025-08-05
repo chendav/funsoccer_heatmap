@@ -64,11 +64,11 @@ export interface RealtimeStatsSummaryResponse {
 }
 
 // API错误处理
-class PlayerStatsApiError extends Error {
+export class PlayerStatsApiError extends Error {
   constructor(
     message: string,
     public status?: number,
-    public response?: any
+    public response?: unknown
   ) {
     super(message);
     this.name = 'PlayerStatsApiError';
