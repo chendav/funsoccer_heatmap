@@ -27,7 +27,7 @@ type SortType = 'distance' | 'maxSpeed' | 'avgSpeed' | 'activeTime';
 
 export default function PlayerRankings({ 
   matchId, 
-  language: _language, // 暂时不使用，为将来国际化功能保留
+  language: _language, // eslint-disable-line @typescript-eslint/no-unused-vars
   className = "" 
 }: PlayerRankingsProps) {
   // const t = translations[language]; // TODO: 实现国际化功能时使用
