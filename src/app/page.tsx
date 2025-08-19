@@ -54,7 +54,7 @@ export default function Home() {
   useEffect(() => {
     if (!deviceId) return;
     setDistance(undefined);
-    fetch(`${API_BASE}/api/heatmap?device_id=${deviceId}`)
+    fetch(`${API_BASE}/api/heatmap/optimized?device_id=${deviceId}`)
       .then(res => res.json())
       .then(data => {
         const stats = data.distance_stats;
@@ -72,7 +72,7 @@ export default function Home() {
           setDistance('--');
         }
         // 处理trackIds
-        const heatmapData = data.heatmap || {};
+        const heatmapData = data.heatmap_data || {};
         const ids = Object.keys(heatmapData);
         setTrackIds(ids);
         if (ids.length > 0) {
