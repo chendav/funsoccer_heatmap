@@ -120,8 +120,8 @@ export default function Home() {
       // 自动选择第一个比赛
       setSelectedMatch('test_match_001');
       
-      // 临时设置测试的绑定信息（用于测试球员统计功能）
-      setBindInfo({ global_id: 1, confidence: 0.95 });
+      // 注释掉自动绑定，让用户可以选择球员
+      // setBindInfo({ global_id: 1, confidence: 0.95 });
     }
   }, [location]);
 
@@ -298,21 +298,27 @@ export default function Home() {
                 {/* 设备选择区域 */}
                 <div className="flex flex-col gap-3 items-center xl:items-start">
                   <DeviceSelector value={deviceId} onChange={setDeviceId} />
-                  {/* 绑定后自动展示个人编号 */}
-                  {bindInfo ? (
-                    <div className="text-green-400 font-bold text-lg bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm border border-green-400/30">
-                      {t("myNumber", language)}{bindInfo.global_id}
+                  {/* 球员选择下拉菜单 */}
+                  {trackIds.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <select
+                        className="border border-white/30 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-white/50 focus:border-white/50"
+                        value={selectedTrackId}
+                        onChange={e => setSelectedTrackId(e.target.value)}
+                      >
+                        <option value="" className="text-gray-900">选择球员</option>
+                        {trackIds.map(id => (
+                          <option key={id} value={id} className="text-gray-900">{t("player", language)} {id}</option>
+                        ))}
+                      </select>
+                      
+                      {/* 绑定后显示个人编号提示 */}
+                      {bindInfo && (
+                        <div className="text-green-400 font-bold text-sm bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm border border-green-400/30 text-center">
+                          {t("myNumber", language)}{bindInfo.global_id}
+                        </div>
+                      )}
                     </div>
-                  ) : trackIds.length > 0 && (
-                    <select
-                      className="border border-white/30 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-white/50 focus:border-white/50"
-                      value={selectedTrackId}
-                      onChange={e => setSelectedTrackId(e.target.value)}
-                    >
-                      {trackIds.map(id => (
-                        <option key={id} value={id} className="text-gray-900">{t("player", language)} {id}</option>
-                      ))}
-                    </select>
                   )}
                 </div>
               </div>
@@ -354,7 +360,7 @@ export default function Home() {
               {/* 球场SVG热力图区 */}
               <div className="mb-4 lg:mb-6 w-full max-w-lg">
                 <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
-                  <Heatmap deviceId={deviceId} trackId={bindInfo ? String(bindInfo.global_id) : selectedTrackId} />
+                  <Heatmap deviceId={deviceId} trackId={selectedTrackId} />
                 </div>
               </div>
               
