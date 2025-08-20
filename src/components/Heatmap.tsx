@@ -36,6 +36,8 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
       })
       .then(data => {
         const heatmapData = data.heatmap_data || {};
+        console.log('[Heatmap] 加载数据:', heatmapData);
+        console.log('[Heatmap] 可用球员ID:', Object.keys(heatmapData));
         setHeatmap(heatmapData);
         setLoading(false);
       })
@@ -48,7 +50,14 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
 
   // 计算热力图点位数据
   const heatPoints = useMemo((): HeatPoint[] => {
-    if (!trackId || !heatmap[trackId]) return [];
+    console.log('[Heatmap] trackId:', trackId);
+    console.log('[Heatmap] 热力图数据keys:', Object.keys(heatmap));
+    console.log('[Heatmap] 当前球员数据:', heatmap[trackId || '']);
+    
+    if (!trackId || !heatmap[trackId]) {
+      console.log('[Heatmap] 返回空数据 - trackId:', trackId, 'heatmap有该ID:', !!heatmap[trackId]);
+      return [];
+    }
 
     const grid = heatmap[trackId];
     const rows = grid.length;
@@ -77,6 +86,7 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
       }
     }
     
+    console.log('[Heatmap] 生成热力点位数量:', points.length);
     return points;
   }, [trackId, heatmap]);
 
