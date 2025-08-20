@@ -74,23 +74,6 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
     return { svgWidth: width, svgHeight: height };
   }, []);
 
-  // 获取球员位置点颜色（根据trackId）
-  const getPlayerColor = (playerId: string): string => {
-    const colors = [
-      '#3B82F6', // blue-500
-      '#EF4444', // red-500  
-      '#10B981', // green-500
-      '#F59E0B', // yellow-500
-      '#8B5CF6', // purple-500
-      '#EC4899', // pink-500
-      '#06B6D4', // cyan-500
-      '#84CC16', // lime-500
-    ];
-    
-    // 根据playerId生成一个稳定的颜色索引
-    const hash = Array.from(playerId).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  };
 
   return (
     <div className="relative flex flex-col items-center justify-center w-full mt-4 mb-2">
