@@ -28,7 +28,9 @@ export default function DeviceSelector({ value, onChange }: {
         setDeviceIds(data.device_ids || []);
         setLoading(false);
         if (data.device_ids && data.device_ids.length > 0 && !value) {
-          onChange(data.device_ids[0]);
+          // 优先选择test_device，因为它有位置数据
+          const preferredDevice = data.device_ids.includes('test_device') ? 'test_device' : data.device_ids[0];
+          onChange(preferredDevice);
         }
       })
       .catch(() => {
@@ -55,7 +57,10 @@ export default function DeviceSelector({ value, onChange }: {
           onChange={e => onChange(e.target.value)}
         >
           {deviceIds.map(id => (
-            <option key={id} value={id}>{id}</option>
+            <option key={id} value={id}>
+              {id === 'test_device' ? '测试设备 (有数据)' : 
+               id === 'soccerpi-001' ? '树莓派-001' : id}
+            </option>
           ))}
         </select>
       )}
