@@ -55,15 +55,31 @@ export default function Home() {
     if (!deviceId) return;
     setDistance(undefined);
     
-    // 并行请求距离统计和位置数据
-    Promise.all([
-      fetch(`${API_BASE}/api/heatmap/optimized?device_id=${deviceId}`),
-      fetch(`${API_BASE}/api/player-positions?device_id=${deviceId}&limit=50`)
-    ])
-      .then(([heatmapRes, positionRes]) => Promise.all([heatmapRes.json(), positionRes.json()]))
-      .then(([heatmapData, positionData]) => {
-        // 处理距离统计
-        const stats = heatmapData.statistics;
+    // 先获取位置数据来确定可用的球员ID
+    fetch(`${API_BASE}/api/player-positions?device_id=${deviceId}&limit=100`)
+      .then(res => res.json())
+      .then(data => {
+        // 处理trackIds - 使用位置数据中的球员ID
+        const positionDataObj = data.position_data || {};
+        const ids = Object.keys(positionDataObj);
+        setTrackIds(ids);
+        if (ids.length > 0) {
+          setSelectedTrackId(ids[0]);
+        } else {
+          setSelectedTrackId(undefined);
+        }
+      })
+      .catch(() => {
+        setTrackIds([]);
+        setSelectedTrackId(undefined);
+      });
+    
+    // 获取距离统计
+    fetch(`${API_BASE}/api/heatmap/optimized?device_id=${deviceId}`)
+      .then(res => res.json())
+      .then(data => {
+        // 使用原来的distance_stats字段
+        const stats = data.distance_stats;
         if (stats && typeof stats === 'object') {
           let total = 0;
           for (const key in stats) {
@@ -77,21 +93,9 @@ export default function Home() {
         } else {
           setDistance('--');
         }
-        
-        // 处理trackIds - 使用位置数据中的球员ID
-        const positionDataObj = positionData.position_data || {};
-        const ids = Object.keys(positionDataObj);
-        setTrackIds(ids);
-        if (ids.length > 0) {
-          setSelectedTrackId(ids[0]);
-        } else {
-          setSelectedTrackId(undefined);
-        }
       })
       .catch(() => {
         setDistance('--');
-        setTrackIds([]);
-        setSelectedTrackId(undefined);
       });
   }, [deviceId]);
 
