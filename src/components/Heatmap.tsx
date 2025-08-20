@@ -52,10 +52,10 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
   const heatPoints = useMemo((): HeatPoint[] => {
     console.log('[Heatmap] trackId:', trackId);
     console.log('[Heatmap] 热力图数据keys:', Object.keys(heatmap));
-    console.log('[Heatmap] 当前球员数据:', heatmap[trackId || '']);
+    console.log('[Heatmap] 当前球员数据:', trackId ? heatmap[trackId] : undefined);
     
     if (!trackId || !heatmap[trackId]) {
-      console.log('[Heatmap] 返回空数据 - trackId:', trackId, 'heatmap有该ID:', !!heatmap[trackId]);
+      console.log('[Heatmap] 返回空数据 - trackId:', trackId, 'heatmap有该ID:', trackId ? !!heatmap[trackId] : false);
       return [];
     }
 
