@@ -54,10 +54,16 @@ export default function Home() {
   useEffect(() => {
     if (!deviceId) return;
     setDistance(undefined);
-    fetch(`${API_BASE}/api/heatmap/optimized?device_id=${deviceId}`)
-      .then(res => res.json())
-      .then(data => {
-        const stats = data.distance_stats;
+    
+    // 并行请求距离统计和位置数据
+    Promise.all([
+      fetch(`${API_BASE}/api/heatmap/optimized?device_id=${deviceId}`),
+      fetch(`${API_BASE}/api/player-positions?device_id=${deviceId}&limit=50`)
+    ])
+      .then(([heatmapRes, positionRes]) => Promise.all([heatmapRes.json(), positionRes.json()]))
+      .then(([heatmapData, positionData]) => {
+        // 处理距离统计
+        const stats = heatmapData.statistics;
         if (stats && typeof stats === 'object') {
           let total = 0;
           for (const key in stats) {
@@ -71,9 +77,10 @@ export default function Home() {
         } else {
           setDistance('--');
         }
-        // 处理trackIds
-        const heatmapData = data.heatmap_data || {};
-        const ids = Object.keys(heatmapData);
+        
+        // 处理trackIds - 使用位置数据中的球员ID
+        const positionDataObj = positionData.position_data || {};
+        const ids = Object.keys(positionDataObj);
         setTrackIds(ids);
         if (ids.length > 0) {
           setSelectedTrackId(ids[0]);

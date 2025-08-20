@@ -5,18 +5,18 @@ interface HeatmapProps {
   trackId?: string | undefined;
 }
 
-interface HeatPoint {
+interface PositionPoint {
   x: number;
   y: number;
-  intensity: number;
+  timestamp: string;
 }
 
 /**
- * 热力图展示组件（增强可视化版）
- * 支持外部传入trackId，渲染选中球员的真正热力图效果
+ * 球员位置图展示组件
+ * 显示球员在场上的实际位置点，而非网格热力图
  */
 export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
-  const [heatmap, setHeatmap] = useState<Record<string, number[][]>>({});
+  const [positionData, setPositionData] = useState<Record<string, PositionPoint[]>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,69 +26,42 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
     
     setLoading(true);
     setError(null);
-    setHeatmap({});
+    setPositionData({});
     
     const apiBase = process.env.NEXT_PUBLIC_API_BASE || "";
-    fetch(`${apiBase}/api/heatmap/optimized?device_id=${deviceId}`)
+    fetch(`${apiBase}/api/player-positions?device_id=${deviceId}&limit=200`)
       .then(res => {
         if (!res.ok) throw new Error("网络错误");
         return res.json();
       })
       .then(data => {
-        const heatmapData = data.heatmap_data || {};
-        console.log('[Heatmap] 加载数据:', heatmapData);
-        console.log('[Heatmap] 可用球员ID:', Object.keys(heatmapData));
-        setHeatmap(heatmapData);
+        const positions = data.position_data || {};
+        console.log('[Heatmap] 加载位置数据:', positions);
+        console.log('[Heatmap] 可用球员ID:', Object.keys(positions));
+        setPositionData(positions);
         setLoading(false);
       })
       .catch((error) => {
         console.error('API请求失败:', error);
-        setError('加载热力图数据失败');
+        setError('加载位置数据失败');
         setLoading(false);
       });
   }, [deviceId]);
 
-  // 计算热力图点位数据
-  const heatPoints = useMemo((): HeatPoint[] => {
+  // 获取当前球员的位置点
+  const playerPositions = useMemo((): PositionPoint[] => {
     console.log('[Heatmap] trackId:', trackId);
-    console.log('[Heatmap] 热力图数据keys:', Object.keys(heatmap));
-    console.log('[Heatmap] 当前球员数据:', trackId ? heatmap[trackId] : undefined);
+    console.log('[Heatmap] 位置数据keys:', Object.keys(positionData));
     
-    if (!trackId || !heatmap[trackId]) {
-      console.log('[Heatmap] 返回空数据 - trackId:', trackId, 'heatmap有该ID:', trackId ? !!heatmap[trackId] : false);
+    if (!trackId || !positionData[trackId]) {
+      console.log('[Heatmap] 返回空数据 - trackId:', trackId, 'positionData有该ID:', trackId ? !!positionData[trackId] : false);
       return [];
     }
 
-    const grid = heatmap[trackId];
-    const rows = grid.length;
-    const cols = grid[0]?.length || 0;
-    const points: HeatPoint[] = [];
-    
-    // 找到最大值用于归一化强度
-    let maxIntensity = 0;
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (grid[i][j] > maxIntensity) {
-          maxIntensity = grid[i][j];
-        }
-      }
-    }
-
-    // 生成热力图点位
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (grid[i][j] > 0) {
-          const x = (j + 0.5) / cols;
-          const y = (i + 0.5) / rows;
-          const intensity = grid[i][j] / maxIntensity;
-          points.push({ x, y, intensity });
-        }
-      }
-    }
-    
-    console.log('[Heatmap] 生成热力点位数量:', points.length);
-    return points;
-  }, [trackId, heatmap]);
+    const positions = positionData[trackId];
+    console.log('[Heatmap] 当前球员位置点数量:', positions.length);
+    return positions;
+  }, [trackId, positionData]);
 
   // 响应式尺寸计算
   const { svgWidth, svgHeight } = useMemo(() => {
@@ -101,31 +74,22 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
     return { svgWidth: width, svgHeight: height };
   }, []);
 
-  // 获取热力图颜色
-  const getHeatColor = (intensity: number): string => {
-    // 使用更丰富的颜色渐变：蓝色 -> 青色 -> 绿色 -> 黄色 -> 红色
+  // 获取球员位置点颜色（根据trackId）
+  const getPlayerColor = (playerId: string): string => {
     const colors = [
-      { r: 59, g: 130, b: 246 },   // blue-500
-      { r: 6, g: 182, b: 212 },    // cyan-500  
-      { r: 34, g: 197, b: 94 },    // green-500
-      { r: 234, g: 179, b: 8 },    // yellow-500
-      { r: 239, g: 68, b: 68 },    // red-500
+      '#3B82F6', // blue-500
+      '#EF4444', // red-500  
+      '#10B981', // green-500
+      '#F59E0B', // yellow-500
+      '#8B5CF6', // purple-500
+      '#EC4899', // pink-500
+      '#06B6D4', // cyan-500
+      '#84CC16', // lime-500
     ];
-
-    const scaledIntensity = Math.pow(intensity, 0.6); // 使用幂函数增强对比度
-    const colorIndex = scaledIntensity * (colors.length - 1);
-    const lowerIndex = Math.floor(colorIndex);
-    const upperIndex = Math.min(lowerIndex + 1, colors.length - 1);
-    const ratio = colorIndex - lowerIndex;
-
-    const lower = colors[lowerIndex];
-    const upper = colors[upperIndex];
-
-    const r = Math.round(lower.r + (upper.r - lower.r) * ratio);
-    const g = Math.round(lower.g + (upper.g - lower.g) * ratio);
-    const b = Math.round(lower.b + (upper.b - lower.b) * ratio);
-
-    return `rgb(${r}, ${g}, ${b})`;
+    
+    // 根据playerId生成一个稳定的颜色索引
+    const hash = Array.from(playerId).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
   };
 
   return (
@@ -176,23 +140,20 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
         {/* 球场背景 */}
         <rect x={0} y={0} width={320} height={480} fill="url(#grassPattern)" opacity="0.3" />
 
-        {/* 热力图层 - 在球场线条之前渲染 */}
-        {heatPoints.map((point, idx) => {
-          const radius = 25 + point.intensity * 20; // 根据强度调整半径
-          const opacity = 0.3 + point.intensity * 0.4; // 根据强度调整透明度
+        {/* 球员位置点层 - 在球场线条之前渲染 */}
+        {playerPositions.map((position, idx) => {
+          const playerColor = trackId ? getPlayerColor(trackId) : '#3B82F6';
           
           return (
             <circle
-              key={`heat-${idx}`}
-              cx={point.x * 320}
-              cy={point.y * 480}
-              r={radius}
-              fill={getHeatColor(point.intensity)}
-              opacity={opacity}
-              style={{
-                mixBlendMode: 'multiply', // 混合模式增强效果
-                filter: `blur(${3 + point.intensity * 2}px)` // 模糊效果
-              }}
+              key={`position-${idx}`}
+              cx={position.x * 320}
+              cy={position.y * 480}
+              r={4}
+              fill={playerColor}
+              opacity={0.7}
+              stroke="white"
+              strokeWidth="1"
             />
           );
         })}
@@ -224,27 +185,14 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
           <rect x={0.44*320} y={480} width={0.12*320} height={8} strokeWidth="3" />
         </g>
 
-        {/* 轨迹点位标记 - 在最顶层 */}
-        {heatPoints.map((point, idx) => (
-          <circle
-            key={`marker-${idx}`}
-            cx={point.x * 320}
-            cy={point.y * 480}
-            r={3 + point.intensity * 2}
-            fill="white"
-            opacity={0.8}
-            stroke={getHeatColor(point.intensity)}
-            strokeWidth="2"
-          />
-        ))}
       </svg>
 
       {/* 数据状态指示 */}
       {!loading && !error && (
         <div className="mt-2 text-xs text-white/60 text-center">
-          {heatPoints.length > 0 
-            ? `${heatPoints.length} 个活动区域` 
-            : trackId ? '暂无轨迹数据' : '请选择球员'
+          {playerPositions.length > 0 
+            ? `${playerPositions.length} 个位置点` 
+            : trackId ? '暂无位置数据' : '请选择球员'
           }
         </div>
       )}
