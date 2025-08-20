@@ -149,11 +149,11 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
               key={`position-${idx}`}
               cx={position.x * 320}
               cy={position.y * 480}
-              r={4}
-              fill={playerColor}
-              opacity={0.7}
-              stroke="white"
-              strokeWidth="1"
+              r={20}
+              fill="#F5EFE2"
+              opacity={0.5}
+              stroke="#F5EFE2"
+              strokeWidth="2"
             />
           );
         })}
