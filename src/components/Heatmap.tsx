@@ -142,8 +142,6 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
 
         {/* 球员位置点层 - 在球场线条之前渲染 */}
         {playerPositions.map((position, idx) => {
-          const playerColor = trackId ? getPlayerColor(trackId) : '#3B82F6';
-          
           return (
             <circle
               key={`position-${idx}`}
