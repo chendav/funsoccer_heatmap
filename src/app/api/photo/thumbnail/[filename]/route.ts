@@ -21,20 +21,49 @@ export async function GET(
     if (USE_MOCK_DATA) {
       console.log('Using mock image for thumbnail:', filename);
       
-      // Generate a simple placeholder image (1x1 pixel PNG)
-      const mockImageData = Buffer.from([
-        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 
-        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x01, 0x90, 0x00, 0x00, 0x01, 0x2C, 
-        0x08, 0x02, 0x00, 0x00, 0x00, 0x53, 0xC4, 0x47, 0x65, 0x00, 0x00, 0x00, 
-        0x0C, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0xF8, 0x00, 0x00, 0x00, 
-        0x00, 0x01, 0x00, 0x01, 0x35, 0xA6, 0x96, 0xB7, 0x00, 0x00, 0x00, 0x00, 
-        0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
-      ]);
+      // Generate SVG placeholder image with football field
+      const svgContent = `
+        <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grass" patternUnits="userSpaceOnUse" width="20" height="20">
+              <rect width="20" height="20" fill="#4ade80"/>
+              <rect width="20" height="20" fill="#22c55e" opacity="0.3"/>
+            </pattern>
+          </defs>
+          
+          <!-- Football field background -->
+          <rect width="400" height="300" fill="url(#grass)"/>
+          
+          <!-- Field markings -->
+          <rect x="20" y="20" width="360" height="260" fill="none" stroke="white" stroke-width="3"/>
+          <rect x="50" y="80" width="80" height="140" fill="none" stroke="white" stroke-width="2"/>
+          <rect x="270" y="80" width="80" height="140" fill="none" stroke="white" stroke-2"/>
+          <line x1="200" y1="20" x2="200" y2="280" stroke="white" stroke-width="2"/>
+          <circle cx="200" cy="150" r="50" fill="none" stroke="white" stroke-width="2"/>
+          <circle cx="200" cy="150" r="3" fill="white"/>
+          
+          <!-- Mock players -->
+          <circle cx="120" cy="100" r="8" fill="#ef4444"/>
+          <circle cx="280" cy="200" r="8" fill="#3b82f6"/>
+          <circle cx="150" cy="180" r="8" fill="#ef4444"/>
+          <circle cx="250" cy="120" r="8" fill="#3b82f6"/>
+          
+          <!-- Demo text -->
+          <text x="200" y="40" text-anchor="middle" fill="white" font-size="16" font-weight="bold">
+            📸 DEMO PHOTO - ${filename}
+          </text>
+          <text x="200" y="270" text-anchor="middle" fill="white" font-size="12">
+            Click on a player to claim identity
+          </text>
+        </svg>
+      `;
+      
+      const mockImageData = Buffer.from(svgContent);
       
       return new NextResponse(mockImageData, {
         status: 200,
         headers: {
-          'Content-Type': 'image/png',
+          'Content-Type': 'image/svg+xml',
           'Cache-Control': 'public, max-age=3600',
         },
       });
