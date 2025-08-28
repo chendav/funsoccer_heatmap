@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
+import Image from 'next/image';
 
 interface Photo {
   photo_id: string;
@@ -27,7 +28,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [currentUserId, setCurrentUserId] = useState('');
   const [userIdInput, setUserIdInput] = useState('demo_user_001');
   const [currentSessionId, setCurrentSessionId] = useState('');
-  const [currentMatchId, setCurrentMatchId] = useState('');
   const [status, setStatus] = useState('请输入用户ID开始使用');
   const [isStartDisabled, setIsStartDisabled] = useState(true);
   const [isEndDisabled, setIsEndDisabled] = useState(true);
@@ -40,54 +40,56 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const API_BASE = 'http://47.239.73.57:8000';  // 后端服务器
   const EDGE_API_BASE = 'http://10.0.0.118:8000';  // 边缘设备
 
-  const translations = {
-    zh: {
-      title: '🏟️ FunSoccer 球员绑定系统',
-      enterUserId: '请输入您的用户ID',
-      confirmId: '确认身份',
-      startMatch: '🚀 开始比赛拍照',
-      endMatch: '🛑 结束比赛',
-      selectPhoto: '📸 选择您的照片进行认领',
-      clickPhoto: '请点击照片中您所在的位置来完成球员绑定',
-      success: '🎉 球员绑定成功！',
-      successDesc: '您已成功绑定到系统，可以开始享受AI数据分析服务了！',
-      camera: '摄像头',
-      loading: '正在加载...',
-      errorStart: '启动拍照失败',
-      errorEnd: '获取照片失败',
-      errorClaim: '认领失败',
-      statusReady: '请输入用户ID开始使用',
-      statusStarting: '正在创建比赛会话...',
-      statusCapturing: '📸 拍照已开始！请进入场地，30秒内将拍摄6张照片',
-      statusComplete: '拍照完成！您可以点击"结束比赛"查看照片',
-      statusGettingPhotos: '正在获取照片...',
-      statusSelectPhoto: '找到照片，请点击您所在的位置'
-    },
-    en: {
-      title: '🏟️ FunSoccer Player Binding System',
-      enterUserId: 'Please enter your user ID',
-      confirmId: 'Confirm Identity',
-      startMatch: '🚀 Start Match Photos',
-      endMatch: '🛑 End Match',
-      selectPhoto: '📸 Select Your Photo to Claim',
-      clickPhoto: 'Please click on your position in the photo to complete player binding',
-      success: '🎉 Player Binding Successful!',
-      successDesc: 'You have successfully bound to the system and can start enjoying AI data analysis services!',
-      camera: 'Camera',
-      loading: 'Loading...',
-      errorStart: 'Failed to start photo capture',
-      errorEnd: 'Failed to get photos',
-      errorClaim: 'Failed to claim',
-      statusReady: 'Please enter user ID to start',
-      statusStarting: 'Creating match session...',
-      statusCapturing: '📸 Photo capture started! Please enter the field, 6 photos will be taken in 30 seconds',
-      statusComplete: 'Photo capture complete! You can click "End Match" to view photos',
-      statusGettingPhotos: 'Getting photos...',
-      statusSelectPhoto: 'Found photos, please click on your position'
-    }
-  };
 
-  const t = (key: keyof typeof translations.zh) => translations[language][key];
+  const t = useCallback((key: string) => {
+    const currentTranslations = {
+      zh: {
+        title: '🏟️ FunSoccer 球员绑定系统',
+        enterUserId: '请输入您的用户ID',
+        confirmId: '确认身份',
+        startMatch: '🚀 开始比赛拍照',
+        endMatch: '🛑 结束比赛',
+        selectPhoto: '📸 选择您的照片进行认领',
+        clickPhoto: '请点击照片中您所在的位置来完成球员绑定',
+        success: '🎉 球员绑定成功！',
+        successDesc: '您已成功绑定到系统，可以开始享受AI数据分析服务了！',
+        camera: '摄像头',
+        loading: '正在加载...',
+        errorStart: '启动拍照失败',
+        errorEnd: '获取照片失败',
+        errorClaim: '认领失败',
+        statusReady: '请输入用户ID开始使用',
+        statusStarting: '正在创建比赛会话...',
+        statusCapturing: '📸 拍照已开始！请进入场地，30秒内将拍摄6张照片',
+        statusComplete: '拍照完成！您可以点击"结束比赛"查看照片',
+        statusGettingPhotos: '正在获取照片...',
+        statusSelectPhoto: '找到照片，请点击您所在的位置'
+      },
+      en: {
+        title: '🏟️ FunSoccer Player Binding System',
+        enterUserId: 'Please enter your user ID',
+        confirmId: 'Confirm Identity',
+        startMatch: '🚀 Start Match Photos',
+        endMatch: '🛑 End Match',
+        selectPhoto: '📸 Select Your Photo to Claim',
+        clickPhoto: 'Please click on your position in the photo to complete player binding',
+        success: '🎉 Player Binding Successful!',
+        successDesc: 'You have successfully bound to the system and can start enjoying AI data analysis services!',
+        camera: 'Camera',
+        loading: 'Loading...',
+        errorStart: 'Failed to start photo capture',
+        errorEnd: 'Failed to get photos',
+        errorClaim: 'Failed to claim',
+        statusReady: 'Please enter user ID to start',
+        statusStarting: 'Creating match session...',
+        statusCapturing: '📸 Photo capture started! Please enter the field, 6 photos will be taken in 30 seconds',
+        statusComplete: 'Photo capture complete! You can click "End Match" to view photos',
+        statusGettingPhotos: 'Getting photos...',
+        statusSelectPhoto: 'Found photos, please click on your position'
+      }
+    };
+    return currentTranslations[language][key as keyof typeof currentTranslations.zh];
+  }, [language]);
 
   const setUserId = useCallback(() => {
     const trimmedId = userIdInput.trim();
@@ -124,7 +126,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
 
       const data = await response.json();
       setCurrentSessionId(data.data.session_id);
-      setCurrentMatchId(data.data.match_id);
 
       // 2. 通知边缘设备开始拍照
       const edgeResponse = await fetch(`${EDGE_API_BASE}/photo/start-capture`, {
@@ -160,7 +161,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, t, currentSessionId]);
+  }, [currentUserId, t, currentSessionId, language]);
 
   const endMatch = useCallback(async () => {
     if (!currentSessionId) {
@@ -195,7 +196,24 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     }
   }, [currentSessionId, t, language]);
 
-  const handlePhotoClick = useCallback(async (event: React.MouseEvent<HTMLImageElement>, photo: Photo) => {
+  const resetUI = useCallback(() => {
+    setCurrentSessionId('');
+    setIsStartDisabled(false);
+    setIsEndDisabled(true);
+    setShowPhotos(false);
+    setShowSuccess(false);
+    setPhotos([]);
+    setStatus(t('statusReady'));
+  }, [t]);
+
+  // 3秒后重置状态的回调
+  const handleSuccessReset = useCallback(() => {
+    setTimeout(() => {
+      resetUI();
+    }, 3000);
+  }, [resetUI]);
+
+  const handlePhotoClick = useCallback(async (event: React.MouseEvent<HTMLDivElement>, photo: Photo) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -234,9 +252,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setStatus(t('success'));
 
       // 3秒后重置状态
-      setTimeout(() => {
-        resetUI();
-      }, 3000);
+      handleSuccessReset();
 
     } catch (error) {
       console.error('Claim player error:', error);
@@ -244,18 +260,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentSessionId, currentUserId, t]);
-
-  const resetUI = useCallback(() => {
-    setCurrentSessionId('');
-    setCurrentMatchId('');
-    setIsStartDisabled(false);
-    setIsEndDisabled(true);
-    setShowPhotos(false);
-    setShowSuccess(false);
-    setPhotos([]);
-    setStatus(t('statusReady'));
-  }, [t]);
+  }, [currentSessionId, currentUserId, t, handleSuccessReset]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 flex items-center justify-center p-4">
@@ -339,13 +344,18 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                 {photos.map((photo) => (
                   <Card key={photo.photo_id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="p-4">
-                      <img
-                        src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
-                        alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
-                        className="w-full h-48 object-cover rounded-lg mb-3 hover:opacity-90 transition-opacity"
+                      <div 
+                        className="w-full h-48 rounded-lg mb-3 hover:opacity-90 transition-opacity relative overflow-hidden"
                         onClick={(e) => handlePhotoClick(e, photo)}
                         style={{ cursor: 'crosshair' }}
-                      />
+                      >
+                        <Image
+                          src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                          alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                       <div className="text-center">
                         <h3 className="font-semibold text-gray-900">
                           {t('camera')} {photo.camera_id.toUpperCase()}
