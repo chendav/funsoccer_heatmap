@@ -127,22 +127,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       const data = await response.json();
       setCurrentSessionId(data.data.session_id);
 
-      // 2. 通知边缘设备开始拍照
-      const edgeResponse = await fetch(`${EDGE_API_BASE}/photo/start-capture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          task_id: `web_ui_${Date.now()}`,
-          session_id: data.data.session_id,
-          duration_seconds: 30,
-          interval_seconds: 5,
-          cameras: ['cam1', 'cam2']
-        })
-      });
-
-      if (!edgeResponse.ok) {
-        throw new Error('启动拍照失败');
-      }
+      // 后端服务器会自动向树莓派发送拍照信号，无需前端直接调用
 
       setStatus(t('statusCapturing'));
       setIsEndDisabled(false);
@@ -174,8 +159,8 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setIsEndDisabled(true);
       setIsLoading(true);
 
-      // 获取照片列表
-      const response = await fetch(`${EDGE_API_BASE}/photo/get-session-photos/${currentSessionId}`);
+      // 获取照片列表 - 通过后端服务器
+      const response = await fetch(`${API_BASE}/match-session/photos/${currentSessionId}`);
 
       if (!response.ok) {
         throw new Error('获取照片失败');
@@ -231,14 +216,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: currentSessionId,
-          user_id: currentUserId,
           photo_id: photo.photo_id,
-          click_coordinates: {
-            x: relativeX,
-            y: relativeY,
-            pixel_x: Math.round(x),
-            pixel_y: Math.round(y)
-          }
+          click_x: Math.round(x),
+          click_y: Math.round(y)
         })
       });
 
@@ -350,7 +330,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                         style={{ cursor: 'crosshair' }}
                       >
                         <Image
-                          src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                          src={photo.thumbnail_url || `${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
                           alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
                           fill
                           className="object-cover"
