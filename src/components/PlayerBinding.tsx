@@ -203,9 +203,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // 计算相对坐标 (0-1 范围)
-    const relativeX = x / rect.width;
-    const relativeY = y / rect.height;
+    // 只需要像素坐标，不需要相对坐标
 
     try {
       setIsLoading(true);
@@ -240,7 +238,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentSessionId, currentUserId, t, handleSuccessReset]);
+  }, [currentSessionId, t, handleSuccessReset]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 flex items-center justify-center p-4">
