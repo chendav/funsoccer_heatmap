@@ -14,6 +14,8 @@ interface Photo {
   filename: string;
   original_path: string;
   thumbnail_path: string;
+  thumbnail_url?: string;
+  download_url?: string;
   file_size_bytes: number;
   image_width: number;
   image_height: number;
