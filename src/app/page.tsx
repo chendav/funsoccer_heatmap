@@ -17,6 +17,7 @@ import Pricing from "@/components/landing/Pricing";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 import LanguageToggle from "@/components/landing/LanguageToggle";
+import PlayerBinding from "@/components/PlayerBinding";
 import { type Language, translations } from "@/lib/translations";
 
 // 统一API前缀
@@ -228,6 +229,9 @@ export default function Home() {
       <Testimonials language={language} />
       <Pricing language={language} />
       <CTA language={language} />
+
+      {/* Player Binding Section */}
+      <PlayerBinding language={language} />
 
       {/* Original heatmap section */}
       <section className="py-20 px-4 relative overflow-hidden" style={{
