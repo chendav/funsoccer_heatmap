@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Start photo capture error:', error);
     
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
         { error: 'Request timeout - edge device not accessible' },
         { status: 504 }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: `Proxy error: ${error.message}` },
+      { error: `Proxy error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }
