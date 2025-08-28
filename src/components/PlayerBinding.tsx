@@ -36,9 +36,13 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // API endpoints
-  const API_BASE = 'http://47.239.73.57:8000';  // 后端服务器
-  const EDGE_API_BASE = 'http://10.0.0.118:8000';  // 边缘设备
+  // API endpoints - use HTTPS for production deployment
+  const API_BASE = process.env.NODE_ENV === 'production' 
+    ? 'https://47.239.73.57:8000'  // HTTPS for production
+    : 'http://47.239.73.57:8000';  // HTTP for development
+  const EDGE_API_BASE = process.env.NODE_ENV === 'production'
+    ? 'https://10.0.0.118:8000'  // HTTPS for production  
+    : 'http://10.0.0.118:8000';  // HTTP for development
 
 
   const t = useCallback((key: string) => {
