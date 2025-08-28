@@ -4,10 +4,10 @@ const EDGE_API_BASE = 'http://10.0.0.118:8000';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  context: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const { filename } = params;
+    const { filename } = await context.params;
     
     if (!filename) {
       return NextResponse.json(
