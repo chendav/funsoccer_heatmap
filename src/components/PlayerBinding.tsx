@@ -36,13 +36,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // API endpoints - use HTTPS for production deployment
-  const API_BASE = process.env.NODE_ENV === 'production' 
-    ? 'https://47.239.73.57:8000'  // HTTPS for production
-    : 'http://47.239.73.57:8000';  // HTTP for development
-  const EDGE_API_BASE = process.env.NODE_ENV === 'production'
-    ? 'https://10.0.0.118:8000'  // HTTPS for production  
-    : 'http://10.0.0.118:8000';  // HTTP for development
+  // Use Next.js API routes as proxy to avoid HTTPS/mixed content issues
+  const API_BASE = '/api';
+  const EDGE_API_BASE = '/api';
 
 
   const t = useCallback((key: string) => {
