@@ -16,9 +16,9 @@ export async function GET(
       );
     }
     
-    console.log('Proxying get session photos request:', { session_id, targetUrl: `${BACKEND_API_BASE}/match-session/photos/${session_id}` });
+    console.log('Proxying get session photos request:', { session_id, targetUrl: `${BACKEND_API_BASE}/photo/session/${session_id}` });
     
-    const response = await fetch(`${BACKEND_API_BASE}/match-session/photos/${session_id}`, {
+    const response = await fetch(`${BACKEND_API_BASE}/photo/session/${session_id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

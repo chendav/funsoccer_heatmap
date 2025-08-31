@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import Image from 'next/image';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 interface Photo {
   photo_id: string;
@@ -37,11 +38,33 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [wsConnected, setWsConnected] = useState(false);
 
   // Use Next.js API routes as proxy to avoid HTTPS/mixed content issues
   const API_BASE = '/api';
   const EDGE_API_BASE = '/api';
 
+
+  useEffect(() => {
+    setWsConnected(wsConnectedState);
+  }, [wsConnectedState]);
+
+  // 定义reset函数，需要在WebSocket回调中使用
+  const resetUI = useCallback(() => {
+    setCurrentSessionId('');
+    setIsStartDisabled(false);
+    setIsEndDisabled(true);
+    setShowPhotos(false);
+    setShowSuccess(false);
+    setPhotos([]);
+    setStatus(language === 'zh' ? '请输入用户ID开始使用' : 'Please enter user ID to start');
+  }, [language]);
+
+  const handleSuccessReset = useCallback(() => {
+    setTimeout(() => {
+      resetUI();
+    }, 3000);
+  }, [resetUI]);
 
   const t = useCallback((key: string) => {
     const currentTranslations = {
@@ -65,7 +88,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         statusCapturing: '📸 拍照已开始！请进入场地，30秒内将拍摄6张照片',
         statusComplete: '拍照完成！您可以点击"结束比赛"查看照片',
         statusGettingPhotos: '正在获取照片...',
-        statusSelectPhoto: '找到照片，请点击您所在的位置'
+        statusSelectPhoto: '找到照片，请点击您所在的位置',
+        wsConnected: '🟢 实时连接正常',
+        wsDisconnected: '🔴 实时连接断开'
       },
       en: {
         title: '🏟️ FunSoccer Player Binding System',
@@ -87,11 +112,70 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         statusCapturing: '📸 Photo capture started! Please enter the field, 6 photos will be taken in 30 seconds',
         statusComplete: 'Photo capture complete! You can click "End Match" to view photos',
         statusGettingPhotos: 'Getting photos...',
-        statusSelectPhoto: 'Found photos, please click on your position'
+        statusSelectPhoto: 'Found photos, please click on your position',
+        wsConnected: '🟢 Real-time connected',
+        wsDisconnected: '🔴 Real-time disconnected'
       }
     };
     return currentTranslations[language][key as keyof typeof currentTranslations.zh];
   }, [language]);
+
+  // WebSocket connection for real-time updates
+  const WS_URL = process.env.NODE_ENV === 'production' 
+    ? 'ws://47.239.73.57:8000/ws/data' 
+    : 'ws://localhost:8000/ws/data';
+
+  const { isConnected: wsConnectedState, sendMessage: sendWSMessage } = useWebSocket({
+    url: WS_URL,
+    userId: currentUserId,
+    sessionId: currentSessionId,
+    onMessage: (message) => {
+      console.log('🎯 WebSocket消息:', message);
+      
+      // 处理不同类型的实时消息
+      switch (message.type) {
+        case 'session_started':
+          if (message.data?.session_id) {
+            setStatus(t('statusCapturing'));
+          }
+          break;
+          
+        case 'photos_ready':
+          if (message.session_id === currentSessionId) {
+            setStatus(t('statusComplete'));
+          }
+          break;
+          
+        case 'processing_complete':
+          if (message.session_id === currentSessionId) {
+            setShowSuccess(true);
+            setShowPhotos(false);
+            setStatus(t('success'));
+            handleSuccessReset();
+          }
+          break;
+          
+        case 'error':
+          setStatus(`❌ ${message.data?.message || 'WebSocket error'}`);
+          break;
+          
+        default:
+          console.log('未知WebSocket消息类型:', message.type);
+      }
+    },
+    onOpen: () => {
+      console.log('✅ WebSocket连接成功');
+      setWsConnected(true);
+    },
+    onClose: () => {
+      console.log('🔌 WebSocket断开');
+      setWsConnected(false);
+    },
+    onError: (error) => {
+      console.error('❌ WebSocket错误:', error);
+      setWsConnected(false);
+    }
+  });
 
   const setUserId = useCallback(() => {
     const trimmedId = userIdInput.trim();
@@ -171,8 +255,16 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       const data = await response.json();
       setPhotos(data.data.photos);
       
-      setStatus(t('statusSelectPhoto') + ` ${data.data.photos_count} ${language === 'zh' ? '张照片' : 'photos'}`);
-      setShowPhotos(true);
+      if (data.data.photos_count === 0) {
+        setStatus(language === 'zh' 
+          ? '⚠️ 摄像头连接问题，无法获取照片。请稍后重试或联系管理员。' 
+          : '⚠️ Camera connection issue, no photos available. Please try again later or contact admin.');
+        setShowPhotos(false);
+        setIsEndDisabled(false); // 允许用户重试
+      } else {
+        setStatus(t('statusSelectPhoto') + ` ${data.data.photos_count} ${language === 'zh' ? '张照片' : 'photos'}`);
+        setShowPhotos(true);
+      }
 
     } catch (error) {
       console.error('End match error:', error);
@@ -183,22 +275,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     }
   }, [currentSessionId, t, language]);
 
-  const resetUI = useCallback(() => {
-    setCurrentSessionId('');
-    setIsStartDisabled(false);
-    setIsEndDisabled(true);
-    setShowPhotos(false);
-    setShowSuccess(false);
-    setPhotos([]);
-    setStatus(t('statusReady'));
-  }, [t]);
-
-  // 3秒后重置状态的回调
-  const handleSuccessReset = useCallback(() => {
-    setTimeout(() => {
-      resetUI();
-    }, 3000);
-  }, [resetUI]);
 
   const handlePhotoClick = useCallback(async (event: React.MouseEvent<HTMLDivElement>, photo: Photo) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -246,9 +322,18 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl bg-white/95 backdrop-blur-sm shadow-2xl border-0">
         <div className="p-8">
-          <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
-            {t('title')}
-          </h1>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {t('title')}
+            </h1>
+            <div className="text-sm">
+              {wsConnected ? (
+                <span className="text-green-600">{t('wsConnected')}</span>
+              ) : (
+                <span className="text-red-500">{t('wsDisconnected')}</span>
+              )}
+            </div>
+          </div>
 
           {/* User Input Section */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">

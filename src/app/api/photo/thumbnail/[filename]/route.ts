@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const EDGE_API_BASE = process.env.EDGE_API_BASE || 'http://10.0.0.118:8000';
-const USE_MOCK_DATA = process.env.NODE_ENV === 'production' && !process.env.EDGE_API_BASE;
+const BACKEND_API_BASE = process.env.BACKEND_API_BASE || 'http://47.239.73.57:8000';
+const USE_MOCK_DATA = process.env.NODE_ENV === 'production' && !process.env.BACKEND_API_BASE;
 
 export async function GET(
   request: NextRequest,
@@ -69,7 +69,7 @@ export async function GET(
       });
     }
     
-    const response = await fetch(`${EDGE_API_BASE}/photo/thumbnail/${filename}`, {
+    const response = await fetch(`${BACKEND_API_BASE}/photo/thumbnail/${filename}`, {
       method: 'GET',
     });
 
