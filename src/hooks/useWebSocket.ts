@@ -2,7 +2,11 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface WebSocketMessage {
   type: string;
-  data?: unknown;
+  data?: {
+    session_id?: string;
+    message?: string;
+    [key: string]: unknown;
+  };
   session_id?: string;
   user_id?: string;
   timestamp?: string;
