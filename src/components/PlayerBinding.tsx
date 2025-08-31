@@ -116,8 +116,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   }, [language]);
 
   // WebSocket connection for real-time updates
+  // Disable WebSocket in production due to HTTPS/WSS compatibility
   const WS_URL = process.env.NODE_ENV === 'production' 
-    ? 'ws://47.239.73.57:8000/ws/data' 
+    ? null
     : 'ws://localhost:8000/ws/data';
 
   const { isConnected: wsConnectedState } = useWebSocket({
