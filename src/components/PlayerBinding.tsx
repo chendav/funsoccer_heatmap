@@ -44,11 +44,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const API_BASE = '/api';
   const EDGE_API_BASE = '/api';
 
-
-  useEffect(() => {
-    setWsConnected(wsConnectedState);
-  }, [wsConnectedState]);
-
   // 定义reset函数，需要在WebSocket回调中使用
   const resetUI = useCallback(() => {
     setCurrentSessionId('');
@@ -176,6 +171,10 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setWsConnected(false);
     }
   });
+
+  useEffect(() => {
+    setWsConnected(wsConnectedState);
+  }, [wsConnectedState]);
 
   const setUserId = useCallback(() => {
     const trimmedId = userIdInput.trim();
