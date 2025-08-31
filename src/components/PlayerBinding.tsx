@@ -414,12 +414,21 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                         onClick={(e) => handlePhotoClick(e, photo)}
                         style={{ cursor: 'crosshair' }}
                       >
-                        <Image
-                          src={photo.thumbnail_url || `${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
-                          alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
-                          fill
-                          className="object-cover"
-                        />
+                        {/* Use img tag for mock photos, Image component for real photos */}
+                        {photo.filename.startsWith('mock_') ? (
+                          <img
+                            src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                            alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Image
+                            src={photo.thumbnail_url || `${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                            alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
                       </div>
                       <div className="text-center">
                         <h3 className="font-semibold text-gray-900">
