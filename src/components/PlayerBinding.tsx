@@ -125,7 +125,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     ? 'ws://47.239.73.57:8000/ws/data' 
     : 'ws://localhost:8000/ws/data';
 
-  const { isConnected: wsConnectedState, sendMessage: sendWSMessage } = useWebSocket({
+  const { isConnected: wsConnectedState } = useWebSocket({
     url: WS_URL,
     userId: currentUserId,
     sessionId: currentSessionId,

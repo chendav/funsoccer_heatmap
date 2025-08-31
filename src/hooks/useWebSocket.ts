@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface WebSocketMessage {
   type: string;
-  data: any;
+  data?: unknown;
   session_id?: string;
   user_id?: string;
   timestamp?: string;
@@ -73,7 +73,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
           const message: WebSocketMessage = JSON.parse(event.data);
           console.log('📨 WebSocket message received:', message);
           onMessage?.(message);
-        } catch (error) {
+        } catch {
           console.error('❌ Failed to parse WebSocket message:', event.data);
         }
       };
@@ -124,7 +124,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
     setIsConnected(false);
   }, []);
 
-  const sendMessage = useCallback((message: any) => {
+  const sendMessage = useCallback((message: Record<string, unknown>) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
         ...message,
