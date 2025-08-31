@@ -13,7 +13,7 @@ interface WebSocketMessage {
 }
 
 interface UseWebSocketOptions {
-  url: string | null;
+  url: string;
   userId?: string;
   sessionId?: string;
   onMessage?: (message: WebSocketMessage) => void;
@@ -46,6 +46,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
   const connect = useCallback(() => {
     try {
       if (!url) {
+        console.log('🔌 WebSocket disabled (no URL provided)');
         return;
       }
       
