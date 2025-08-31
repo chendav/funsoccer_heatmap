@@ -9,6 +9,10 @@ export async function GET(
 ) {
   try {
     const { filename } = await context.params;
+    console.log('Thumbnail API called with filename:', filename);
+    console.log('USE_MOCK_DATA:', USE_MOCK_DATA);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('BACKEND_API_BASE env:', process.env.BACKEND_API_BASE);
     
     if (!filename) {
       return NextResponse.json(
@@ -37,7 +41,7 @@ export async function GET(
           <!-- Field markings -->
           <rect x="20" y="20" width="360" height="260" fill="none" stroke="white" stroke-width="3"/>
           <rect x="50" y="80" width="80" height="140" fill="none" stroke="white" stroke-width="2"/>
-          <rect x="270" y="80" width="80" height="140" fill="none" stroke="white" stroke-2"/>
+          <rect x="270" y="80" width="80" height="140" fill="none" stroke="white" stroke-width="2"/>
           <line x1="200" y1="20" x2="200" y2="280" stroke="white" stroke-width="2"/>
           <circle cx="200" cy="150" r="50" fill="none" stroke="white" stroke-width="2"/>
           <circle cx="200" cy="150" r="3" fill="white"/>
