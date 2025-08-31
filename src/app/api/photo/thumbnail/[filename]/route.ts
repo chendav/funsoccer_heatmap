@@ -17,8 +17,8 @@ export async function GET(
       );
     }
     
-    // Use mock image in production if edge device is not accessible
-    if (USE_MOCK_DATA) {
+    // Use mock image in production if edge device is not accessible or for mock filenames
+    if (USE_MOCK_DATA || filename.startsWith('mock_')) {
       console.log('Using mock image for thumbnail:', filename);
       
       // Generate SVG placeholder image with football field

@@ -46,7 +46,6 @@ export function useWebSocket(options: UseWebSocketOptions) {
   const connect = useCallback(() => {
     try {
       if (!url) {
-        console.log('🔌 WebSocket disabled (no URL provided)');
         return;
       }
       
