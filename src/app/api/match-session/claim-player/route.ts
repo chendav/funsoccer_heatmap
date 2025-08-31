@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_API_BASE = process.env.BACKEND_API_BASE || 'http://47.239.73.57:8000';
-// 始终使用真实后端服务器，不使用mock数据
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = process.env.NODE_ENV === 'production' && !process.env.BACKEND_API_BASE;
 
 export async function POST(request: NextRequest) {
   try {
