@@ -416,6 +416,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                       >
                         {/* Use img tag for mock photos, Image component for real photos */}
                         {photo.filename.startsWith('mock_') ? (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
                             alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
