@@ -116,10 +116,11 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   }, [language]);
 
   // WebSocket connection for real-time updates
-  // Use WSS for production to maintain HTTPS compatibility
-  const WS_URL = process.env.NODE_ENV === 'production' 
-    ? 'wss://api.funsoccer.app/ws/data'
-    : 'ws://localhost:8000/ws/data';
+  // Use environment variable for WebSocket URL
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 
+    (process.env.NODE_ENV === 'production' 
+      ? 'wss://api.funsoccer.app/ws/data'
+      : 'ws://47.239.73.57:8000/ws/data');
 
   const { isConnected: wsConnectedState } = useWebSocket({
     url: WS_URL,
