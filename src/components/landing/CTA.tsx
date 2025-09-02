@@ -29,7 +29,8 @@ export default function CTA({ language }: CTAProps) {
     setErrorMessage("")
 
     try {
-      const response = await fetch(`https://api.funsoccer.app/subscription/subscribe`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://47.239.73.57';
+      const response = await fetch(`${apiBase}/subscription/subscribe`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

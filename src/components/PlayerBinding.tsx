@@ -119,8 +119,8 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   // Use environment variable for WebSocket URL
   const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 
     (process.env.NODE_ENV === 'production' 
-      ? 'wss://api.funsoccer.app/ws/data'
-      : 'ws://47.239.73.57:8000/ws/data');
+      ? 'ws://47.239.73.57:8000/ws/detection'
+      : 'ws://47.239.73.57:8000/ws/detection');
 
   const { isConnected: wsConnectedState } = useWebSocket({
     url: WS_URL,
