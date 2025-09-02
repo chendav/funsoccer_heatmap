@@ -6,6 +6,8 @@ import { Card } from './ui/card';
 import { Input } from './ui/input';
 import Image from 'next/image';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { getWebSocketConfig, getConnectionStatusMessage } from '../utils/websocket-config';
+import { WebSocketAlert } from './WebSocketAlert';
 
 interface Photo {
   photo_id: string;
@@ -35,6 +37,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [isStartDisabled, setIsStartDisabled] = useState(true);
   const [isEndDisabled, setIsEndDisabled] = useState(true);
   const [showPhotos, setShowPhotos] = useState(false);
+  const [showWebSocketAlert, setShowWebSocketAlert] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -115,12 +118,17 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     return currentTranslations[language][key as keyof typeof currentTranslations.zh];
   }, [language]);
 
-  // WebSocket connection for real-time updates
-  // Use environment variable for WebSocket URL
-  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 
-    (process.env.NODE_ENV === 'production' 
-      ? 'ws://47.239.73.57:8000/ws/detection'
-      : 'ws://47.239.73.57:8000/ws/detection');
+  // WebSocket connection configuration with Mixed Content security handling
+  const wsConfig = getWebSocketConfig();
+  const WS_URL = wsConfig.url;
+  const connectionMessage = getConnectionStatusMessage();
+
+  // Check if WebSocket can connect (Mixed Content security)
+  useEffect(() => {
+    if (!wsConfig.canConnect && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+      setShowWebSocketAlert(true);
+    }
+  }, [wsConfig.canConnect]);
 
   const { isConnected: wsConnectedState } = useWebSocket({
     url: WS_URL,
@@ -448,6 +456,12 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
           )}
         </div>
       </Card>
+      
+      {/* WebSocket Mixed Content Security Alert */}
+      <WebSocketAlert 
+        show={showWebSocketAlert} 
+        onDismiss={() => setShowWebSocketAlert(false)} 
+      />
     </div>
   );
 }
