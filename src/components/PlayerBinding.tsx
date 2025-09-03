@@ -381,9 +381,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                     {t('welcome')} {user.nickname || user.username || user.email}
                   </span>
                 </div>
-                <div className="text-sm text-green-600">
-                  {t('userInfo')}: {currentUserId}
-                </div>
               </div>
             ) : (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
