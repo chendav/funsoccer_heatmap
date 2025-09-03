@@ -19,6 +19,7 @@ import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 import LanguageToggle from "@/components/landing/LanguageToggle";
 import PlayerBinding from "@/components/PlayerBinding";
+import LoginButton from "@/components/auth/LoginButton";
 import { type Language, translations } from "@/lib/translations";
 
 // 统一API前缀
@@ -239,7 +240,10 @@ export default function Home() {
             <Image src="/logo_funsoccer.png" alt="趣踢 FunSoccer" width={32} height={32} className="w-8 h-8" />
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">趣踢 FunSoccer</h1>
           </div>
-          <LanguageToggle language={language} onToggle={toggleLanguage} />
+          <div className="flex items-center gap-4">
+            <LoginButton />
+            <LanguageToggle language={language} onToggle={toggleLanguage} />
+          </div>
         </div>
       </header>
 
