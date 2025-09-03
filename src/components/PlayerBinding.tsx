@@ -121,7 +121,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   // WebSocket connection configuration with Mixed Content security handling
   const wsConfig = getWebSocketConfig();
   const WS_URL = wsConfig.url;
-  const connectionMessage = getConnectionStatusMessage();
+  // const connectionMessage = getConnectionStatusMessage();
 
   // Check if WebSocket can connect (Mixed Content security)
   useEffect(() => {
