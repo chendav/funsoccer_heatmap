@@ -100,16 +100,24 @@ export function useWebSocket(options: UseWebSocketOptions) {
         
         onClose?.();
 
-        // 自动重连逻辑
-        if (autoReconnect && reconnectAttempts.current < maxReconnectAttempts) {
+        // 自动重连逻辑 - 只在非正常关闭时重连
+        const shouldReconnect = autoReconnect && 
+                               reconnectAttempts.current < maxReconnectAttempts &&
+                               event.code !== 1000 && // 正常关闭
+                               event.code !== 1001 && // 端点离开
+                               event.code !== 1005;   // 无状态码（正常）
+        
+        if (shouldReconnect) {
           reconnectAttempts.current++;
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current - 1), 30000);
           
-          console.log(`🔄 Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`);
+          console.log(`🔄 Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts}) - Close code: ${event.code}`);
           
           reconnectTimeout.current = setTimeout(() => {
             connect();
           }, delay);
+        } else if (event.code === 1000 || event.code === 1001 || event.code === 1005) {
+          console.log('🔌 WebSocket closed normally - no reconnect needed');
         }
       };
 
