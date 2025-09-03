@@ -165,8 +165,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     }
   }, [wsConfig.canConnect, wsConfig.warningMessage]);
 
+  // WebSocket连接 - 维护模式时不连接
   const { isConnected: wsConnectedState } = useWebSocket({
-    url: WS_URL,
+    url: wsConfig.canConnect ? WS_URL : '', // 空URL时hook不会连接
     userId: currentUserId,
     sessionId: currentSessionId,
     onMessage: (message) => {
