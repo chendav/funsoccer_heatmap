@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://47.239.73.57:8000/api/:path*"
+      "destination": "https://api.funsoccer.app/api/:path*"
     },
     {
       "source": "/health",
-      "destination": "http://47.239.73.57:8000/health"
+      "destination": "https://api.funsoccer.app/health"
     },
     {
       "source": "/ws/:path*",
-      "destination": "http://47.239.73.57:8000/ws/:path*"
+      "destination": "https://api.funsoccer.app/ws/:path*"
     }
   ],
   "headers": [

@@ -64,7 +64,7 @@ export default function GeographicDeviceSelector({
   const [error, setError] = useState<string | null>(null);
   const [locationStatus, setLocationStatus] = useState<string>("正在获取位置...");
 
-  const apiBase = process.env.NEXT_PUBLIC_BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || "http://47.239.73.57";
+  const apiBase = process.env.NEXT_PUBLIC_BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || "https://api.funsoccer.app";
 
   // 获取用户地理位置
   const getUserLocation = async (): Promise<UserLocation> => {

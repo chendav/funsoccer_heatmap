@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_API_BASE = process.env.BACKEND_API_BASE || 'http://47.239.73.57';
+const BACKEND_API_BASE = process.env.BACKEND_API_BASE || 'https://api.funsoccer.app';
 // For now, disable mock data to test real backend connection
 const USE_MOCK_DATA = false; // process.env.NODE_ENV === 'production' && !process.env.BACKEND_API_BASE;
 
