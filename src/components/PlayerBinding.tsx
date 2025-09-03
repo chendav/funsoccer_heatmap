@@ -50,10 +50,13 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     if (isAuthenticated && user) {
       const userId = getUserId(user);
       setCurrentUserId(userId || '');
-      setStatus(userId ? 
-        (language === 'zh' ? '✅ 已登录，可以开始比赛' : '✅ Logged in, ready to start match') :
-        (language === 'zh' ? '⚠️ 用户信息异常，请重新登录' : '⚠️ User info error, please login again')
-      );
+      if (userId) {
+        setStatus(language === 'zh' ? '✅ 已登录，可以开始比赛' : '✅ Logged in, ready to start match');
+        setIsStartDisabled(false); // 允许开始比赛
+      } else {
+        setStatus(language === 'zh' ? '⚠️ 用户信息异常，请重新登录' : '⚠️ User info error, please login again');
+        setIsStartDisabled(true);
+      }
     } else {
       setCurrentUserId('');
       setStatus(language === 'zh' ? '请先登录以使用球员绑定功能' : 'Please login first to use player binding');
@@ -153,10 +156,14 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
 
   // Check if WebSocket can connect (Mixed Content security)
   useEffect(() => {
-    if (!wsConfig.canConnect && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    if (!wsConfig.canConnect && typeof window !== 'undefined') {
       setShowWebSocketAlert(true);
+      setIsStartDisabled(true); // 禁用开始按钮
+      if (window.location.protocol === 'https:') {
+        setStatus('🔧 ' + (wsConfig.warningMessage || '球员绑定服务正在维护中，请稍后再试'));
+      }
     }
-  }, [wsConfig.canConnect]);
+  }, [wsConfig.canConnect, wsConfig.warningMessage]);
 
   const { isConnected: wsConnectedState } = useWebSocket({
     url: WS_URL,
@@ -357,7 +364,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
               {wsConnected ? (
                 <span className="text-green-600">{t('wsConnected')}</span>
               ) : (
-                <span className="text-red-500">{t('wsDisconnected')}</span>
+                <span className="text-orange-500">
+                  {language === 'zh' ? '🟡 离线模式（功能可用）' : '🟡 Offline mode (features available)'}
+                </span>
               )}
             </div>
           </div>
@@ -485,11 +494,30 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         </div>
       </Card>
       
-      {/* WebSocket Mixed Content Security Alert */}
-      <WebSocketAlert 
-        show={showWebSocketAlert} 
-        onDismiss={() => setShowWebSocketAlert(false)} 
-      />
+      {/* WebSocket Service Alert */}
+      {showWebSocketAlert && !wsConfig.canConnect && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🔧</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {language === 'zh' ? '服务维护中' : 'Service Maintenance'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {wsConfig.warningMessage || 
+                  (language === 'zh' ? '球员绑定服务正在维护中，请稍后再试' : 'Player binding service is under maintenance, please try again later')
+                }
+              </p>
+              <button
+                onClick={() => setShowWebSocketAlert(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {language === 'zh' ? '我知道了' : 'Got it'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
