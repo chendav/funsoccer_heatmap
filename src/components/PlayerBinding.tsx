@@ -6,7 +6,7 @@ import { Card } from './ui/card';
 import { Input } from './ui/input';
 import Image from 'next/image';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { getWebSocketConfig, getConnectionStatusMessage } from '../utils/websocket-config';
+import { getWebSocketConfig } from '../utils/websocket-config';
 import { WebSocketAlert } from './WebSocketAlert';
 
 interface Photo {
