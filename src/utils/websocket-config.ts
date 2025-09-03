@@ -30,13 +30,12 @@ export function getWebSocketConfig(): WebSocketConfig {
     };
   }
   
-  // 回退配置：临时禁用WSS连接直到服务器配置完成
+  // 回退配置：现在我们支持 WSS，所以 HTTPS 页面可以连接到 WSS
   if (isSecure) {
     return {
       url: 'wss://api.funsoccer.app/ws/detection',
       protocol: 'wss',
-      canConnect: false, // 临时禁用直到服务器就绪
-      warningMessage: '球员绑定服务正在维护中，请稍后再试'
+      canConnect: true // 恢复WebSocket连接
     };
   }
   
