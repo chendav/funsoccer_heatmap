@@ -17,33 +17,31 @@ export interface WebSocketConfig {
  */
 export function getWebSocketConfig(): WebSocketConfig {
   const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
-  const backendIP = '47.239.73.57';
-  const backendPort = '8000';
-  const wsPath = '/ws/detection';
   
   // 优先使用环境变量
   if (process.env.NEXT_PUBLIC_WS_URL) {
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    const isWss = wsUrl.startsWith('wss');
+    
     return {
-      url: process.env.NEXT_PUBLIC_WS_URL,
-      protocol: process.env.NEXT_PUBLIC_WS_URL.startsWith('wss') ? 'wss' : 'ws',
-      canConnect: true
+      url: wsUrl,
+      protocol: isWss ? 'wss' : 'ws',
+      canConnect: true // 环境变量配置的 URL 应该总是可以连接
     };
   }
   
-  // HTTPS页面的情况
+  // 回退配置：现在我们支持 WSS，所以 HTTPS 页面可以连接到 WSS
   if (isSecure) {
     return {
-      url: `ws://${backendIP}:${backendPort}${wsPath}`,
-      protocol: 'ws',
-      canConnect: false, // 浏览器会阻止
-      warningMessage: '由于Mixed Content安全限制，HTTPS页面无法连接到不安全的WebSocket。需要后端支持WSS或使用HTTP页面。',
-      fallbackUrl: `http://www.funsoccer.app` // 建议用户使用HTTP版本
+      url: 'wss://api.funsoccer.app/ws/detection',
+      protocol: 'wss',
+      canConnect: true // 现在支持 WSS 了
     };
   }
   
-  // HTTP页面的情况
+  // HTTP页面回退到不安全的 WebSocket
   return {
-    url: `ws://${backendIP}:${backendPort}${wsPath}`,
+    url: 'ws://47.239.73.57:8000/ws/detection',
     protocol: 'ws',
     canConnect: true
   };
@@ -67,5 +65,6 @@ export function getConnectionStatusMessage(): string {
     return `🔒 WebSocket连接被浏览器安全策略阻止。${config.warningMessage || ''}`;
   }
   
-  return '🔌 正在连接到WebSocket...';
+  const protocolText = config.protocol === 'wss' ? '🔒 安全的 WSS' : '🔌 WebSocket';
+  return `${protocolText} 连接已准备就绪`;
 }

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
+import { getWebSocketConfig } from '../utils/websocket-config';
 
 interface WebSocketAlertProps {
   show: boolean;
@@ -12,7 +13,11 @@ interface WebSocketAlertProps {
 export function WebSocketAlert({ show, onDismiss }: WebSocketAlertProps) {
   if (!show) return null;
 
+  const wsConfig = getWebSocketConfig();
   const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+
+  // 如果 WebSocket 可以连接（包括 WSS），则不显示警告
+  if (wsConfig.canConnect) return null;
 
   if (!isSecure) return null; // 只在HTTPS环境显示
 
