@@ -50,8 +50,17 @@ export function useWebSocket(options: UseWebSocketOptions) {
         return;
       }
       
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
+      // 防止重复连接 - 检查所有活动状态
+      if (wsRef.current?.readyState === WebSocket.OPEN || 
+          wsRef.current?.readyState === WebSocket.CONNECTING) {
+        console.log('🔌 WebSocket already connecting or connected, skipping...');
         return;
+      }
+      
+      // 清理任何现有的连接
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
       }
 
       console.log(`🔌 Connecting to WebSocket: ${url}`);
@@ -155,13 +164,18 @@ export function useWebSocket(options: UseWebSocketOptions) {
     return false;
   }, [userId, sessionId]);
 
+  const connectRef = useRef(connect);
+  const disconnectRef = useRef(disconnect);
+  connectRef.current = connect;
+  disconnectRef.current = disconnect;
+
   useEffect(() => {
-    connect();
+    connectRef.current();
     
     return () => {
-      disconnect();
+      disconnectRef.current();
     };
-  }, [connect, disconnect]);
+  }, [url]); // 只在 URL 变化时重连
 
   return {
     isConnected,
