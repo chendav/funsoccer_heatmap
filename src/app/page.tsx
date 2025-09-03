@@ -21,6 +21,8 @@ import LanguageToggle from "@/components/landing/LanguageToggle";
 import PlayerBinding from "@/components/PlayerBinding";
 import LoginButton from "@/components/auth/LoginButton";
 import { type Language, translations } from "@/lib/translations";
+import { useAuth } from '@/contexts/AuthContext';
+import { getUserId } from '@/utils/userUtils';
 
 // 统一API前缀
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
@@ -31,6 +33,9 @@ const t = (key: keyof typeof translations.zh, language: Language) => {
 }
 
 export default function Home() {
+  // Auth state
+  const { user } = useAuth();
+  
   // Language state
   const [language, setLanguage] = useState<Language>("zh");
   
@@ -183,11 +188,18 @@ export default function Home() {
     }
     // 上传轨迹到后端
     if (selectedMatch && trajectory.length > 5) {
+      const userId = getUserId(user);
+      
+      if (!userId) {
+        setRecognizeStatus("请先登录后再进行球员绑定");
+        return;
+      }
+      
       fetch(`${API_BASE}/api/identity/recognize`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          user_id: 1, // TODO: 替换为真实用户ID
+          user_id: userId, // 使用真实用户ID
           match_id: selectedMatch,
           trajectory
         })
@@ -210,11 +222,18 @@ export default function Home() {
   // 解绑逻辑
   const handleUnbind = () => {
     if (!selectedMatch) return;
+    
+    const userId = getUserId(user);
+    if (!userId) {
+      setUnbindStatus("请先登录后再进行操作");
+      return;
+    }
+    
     fetch(`${API_BASE}/api/identity/unbind`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        user_id: 1, // TODO: 替换为真实用户ID
+        user_id: userId, // 使用真实用户ID
         match_id: selectedMatch
       })
     })

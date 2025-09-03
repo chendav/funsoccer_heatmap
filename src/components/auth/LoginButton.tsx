@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from './LoginModal';
@@ -12,6 +13,7 @@ interface LoginButtonProps {
 export default function LoginButton({ className }: LoginButtonProps) {
   const { isAuthenticated, user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const router = useRouter();
 
   const handleLoginSuccess = (loginData: any) => {
     // LoginModal 会处理登录逻辑
@@ -37,6 +39,22 @@ export default function LoginButton({ className }: LoginButtonProps) {
             {user.nickname || user.username || user.email}
           </span>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/dashboard')}
+          className="text-blue-600 hover:text-blue-800"
+        >
+          仪表板
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/leaderboard')}
+          className="text-green-600 hover:text-green-800"
+        >
+          排行榜
+        </Button>
         <Button
           variant="outline"
           size="sm"
