@@ -3,11 +3,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { Input } from './ui/input';
 import Image from 'next/image';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { getWebSocketConfig } from '../utils/websocket-config';
 import { WebSocketAlert } from './WebSocketAlert';
+import { useAuth } from '../contexts/AuthContext';
+import { getUserId } from '../utils/userUtils';
+import LoginButton from './auth/LoginButton';
 
 interface Photo {
   photo_id: string;
@@ -30,11 +32,11 @@ interface PlayerBindingProps {
 }
 
 export default function PlayerBinding({ language }: PlayerBindingProps) {
+  const { user, isAuthenticated } = useAuth();
   const [currentUserId, setCurrentUserId] = useState('');
-  const [userIdInput, setUserIdInput] = useState('demo_user_001');
   const [currentSessionId, setCurrentSessionId] = useState('');
-  const [status, setStatus] = useState('请输入用户ID开始使用');
-  const [isStartDisabled, setIsStartDisabled] = useState(true);
+  const [status, setStatus] = useState('');
+  const [isStartDisabled, setIsStartDisabled] = useState(false);
   const [isEndDisabled, setIsEndDisabled] = useState(true);
   const [showPhotos, setShowPhotos] = useState(false);
   const [showWebSocketAlert, setShowWebSocketAlert] = useState(false);
@@ -42,6 +44,22 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
+
+  // 自动设置用户ID
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const userId = getUserId(user);
+      setCurrentUserId(userId || '');
+      setStatus(userId ? 
+        (language === 'zh' ? '✅ 已登录，可以开始比赛' : '✅ Logged in, ready to start match') :
+        (language === 'zh' ? '⚠️ 用户信息异常，请重新登录' : '⚠️ User info error, please login again')
+      );
+    } else {
+      setCurrentUserId('');
+      setStatus(language === 'zh' ? '请先登录以使用球员绑定功能' : 'Please login first to use player binding');
+      setIsStartDisabled(true);
+    }
+  }, [isAuthenticated, user, language]);
 
   // Use Next.js API routes as proxy to avoid HTTPS/mixed content issues
   const API_BASE = '/api';
@@ -55,8 +73,12 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     setShowPhotos(false);
     setShowSuccess(false);
     setPhotos([]);
-    setStatus(language === 'zh' ? '请输入用户ID开始使用' : 'Please enter user ID to start');
-  }, [language]);
+    if (isAuthenticated && currentUserId) {
+      setStatus(language === 'zh' ? '✅ 已登录，可以开始比赛' : '✅ Logged in, ready to start match');
+    } else {
+      setStatus(language === 'zh' ? '请先登录以使用球员绑定功能' : 'Please login first to use player binding');
+    }
+  }, [language, isAuthenticated, currentUserId]);
 
   const handleSuccessReset = useCallback(() => {
     setTimeout(() => {
@@ -81,14 +103,17 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         errorStart: '启动拍照失败',
         errorEnd: '获取照片失败',
         errorClaim: '认领失败',
-        statusReady: '请输入用户ID开始使用',
+        statusReady: '✅ 已登录，可以开始比赛',
         statusStarting: '正在创建比赛会话...',
         statusCapturing: '📸 拍照已开始！请进入场地，30秒内将拍摄6张照片',
         statusComplete: '拍照完成！您可以点击"结束比赛"查看照片',
         statusGettingPhotos: '正在获取照片...',
         statusSelectPhoto: '找到照片，请点击您所在的位置',
         wsConnected: '🟢 实时连接正常',
-        wsDisconnected: '🔴 实时连接断开'
+        wsDisconnected: '🔴 实时连接断开',
+        loginRequired: '请先登录以使用球员绑定功能',
+        userInfo: '当前用户',
+        welcome: '欢迎'
       },
       en: {
         title: '🏟️ FunSoccer Player Binding System',
@@ -105,14 +130,17 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         errorStart: 'Failed to start photo capture',
         errorEnd: 'Failed to get photos',
         errorClaim: 'Failed to claim',
-        statusReady: 'Please enter user ID to start',
+        statusReady: '✅ Logged in, ready to start match',
         statusStarting: 'Creating match session...',
         statusCapturing: '📸 Photo capture started! Please enter the field, 6 photos will be taken in 30 seconds',
         statusComplete: 'Photo capture complete! You can click "End Match" to view photos',
         statusGettingPhotos: 'Getting photos...',
         statusSelectPhoto: 'Found photos, please click on your position',
         wsConnected: '🟢 Real-time connected',
-        wsDisconnected: '🔴 Real-time disconnected'
+        wsDisconnected: '🔴 Real-time disconnected',
+        loginRequired: 'Please login first to use player binding',
+        userInfo: 'Current User',
+        welcome: 'Welcome'
       }
     };
     return currentTranslations[language][key as keyof typeof currentTranslations.zh];
@@ -186,20 +214,10 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     setWsConnected(wsConnectedState);
   }, [wsConnectedState]);
 
-  const setUserId = useCallback(() => {
-    const trimmedId = userIdInput.trim();
-    if (!trimmedId) {
-      alert(language === 'zh' ? '请输入有效的用户ID' : 'Please enter a valid user ID');
-      return;
-    }
-    setCurrentUserId(trimmedId);
-    setStatus(language === 'zh' ? `用户ID已设置: ${trimmedId}` : `User ID set: ${trimmedId}`);
-    setIsStartDisabled(false);
-  }, [userIdInput, language]);
 
   const startMatch = useCallback(async () => {
-    if (!currentUserId) {
-      alert(language === 'zh' ? '请先设置用户ID' : 'Please set user ID first');
+    if (!isAuthenticated || !currentUserId) {
+      alert(language === 'zh' ? '请先登录' : 'Please login first');
       return;
     }
 
@@ -241,7 +259,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, t, currentSessionId, language]);
+  }, [currentUserId, t, currentSessionId, language, isAuthenticated]);
 
   const endMatch = useCallback(async () => {
     if (!currentSessionId) {
@@ -344,34 +362,44 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
             </div>
           </div>
 
-          {/* User Input Section */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Input
-              type="text"
-              placeholder={t('enterUserId')}
-              value={userIdInput}
-              onChange={(e) => setUserIdInput(e.target.value)}
-              className="max-w-xs"
-            />
-            <Button onClick={setUserId} variant="default">
-              {t('confirmId')}
-            </Button>
+          {/* User Status Section */}
+          <div className="flex flex-col items-center mb-8">
+            {isAuthenticated && user ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="font-semibold text-green-800">
+                    {t('welcome')} {user.nickname || user.username || user.email}
+                  </span>
+                </div>
+                <div className="text-sm text-green-600">
+                  {t('userInfo')}: {currentUserId}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                <div className="text-orange-800 mb-3">
+                  {t('loginRequired')}
+                </div>
+                <LoginButton className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg" />
+              </div>
+            )}
           </div>
 
           {/* Match Controls */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Button 
               onClick={startMatch}
-              disabled={isStartDisabled || isLoading}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg"
+              disabled={!isAuthenticated || isStartDisabled || isLoading}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {t('startMatch')}
             </Button>
             <Button 
               onClick={endMatch}
-              disabled={isEndDisabled || isLoading}
+              disabled={!isAuthenticated || isEndDisabled || isLoading}
               variant="destructive"
-              className="px-8 py-3 text-lg"
+              className="px-8 py-3 text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {t('endMatch')}
             </Button>
