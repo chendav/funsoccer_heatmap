@@ -21,8 +21,6 @@ import LanguageToggle from "@/components/landing/LanguageToggle";
 import PlayerBinding from "@/components/PlayerBinding";
 import LoginButton from "@/components/auth/LoginButton";
 import { type Language, translations } from "@/lib/translations";
-import { useAuth } from '@/contexts/AuthContext';
-import { getUserId } from '@/utils/userUtils';
 
 // 统一API前缀
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
@@ -33,9 +31,6 @@ const t = (key: keyof typeof translations.zh, language: Language) => {
 }
 
 export default function Home() {
-  // Auth state
-  const { user } = useAuth();
-  
   // Language state
   const [language, setLanguage] = useState<Language>("zh");
   
@@ -47,15 +42,9 @@ export default function Home() {
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   const [matches, setMatches] = useState<{ match_id: string; field_name?: string }[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string | undefined>(undefined);
-  const [isCollecting, setIsCollecting] = useState(false);
-  const [trajectory, setTrajectory] = useState<{lat: number, lng: number, timestamp: number}[]>([]);
-  const [recognizeStatus, setRecognizeStatus] = useState<string | null>(null);
-  const [bindInfo, setBindInfo] = useState<{global_id: number, confidence: number} | null>(null);
-  const [unbindStatus, setUnbindStatus] = useState<string | null>(null);
   const [useGeographicSelector, setUseGeographicSelector] = useState(true);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
-  const watchIdRef = useRef<number | null>(null);
 
   // Language toggle function
   const toggleLanguage = () => {
@@ -164,91 +153,6 @@ export default function Home() {
     }
   }, [location]);
 
-  // 轨迹采集逻辑
-  const startCollect = () => {
-    setIsCollecting(true);
-    setTrajectory([]);
-    setRecognizeStatus(t("collectingTrajectory", language));
-    if (navigator.geolocation) {
-      watchIdRef.current = navigator.geolocation.watchPosition(
-        pos => {
-          setTrajectory(traj => ([...traj, {lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now()}]));
-        },
-        () => setRecognizeStatus(t("locationFailed", language)),
-        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
-      );
-    }
-  };
-  const stopCollect = () => {
-    setIsCollecting(false);
-    setRecognizeStatus(t("trajectoryComplete", language));
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-    // 上传轨迹到后端
-    if (selectedMatch && trajectory.length > 5) {
-      const userId = getUserId(user);
-      
-      if (!userId) {
-        setRecognizeStatus("请先登录后再进行球员绑定");
-        return;
-      }
-      
-      fetch(`${API_BASE}/api/identity/recognize`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          user_id: userId, // 使用真实用户ID
-          match_id: selectedMatch,
-          trajectory
-        })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "success") {
-            setBindInfo({global_id: data.global_id, confidence: data.confidence});
-            setRecognizeStatus(t("recognitionSuccess", language));
-          } else {
-            setRecognizeStatus(data.message || t("recognitionFailed", language));
-          }
-        })
-        .catch(() => setRecognizeStatus(t("recognitionRequestFailed", language)));
-    } else {
-      setRecognizeStatus(t("trajectoryTooFew", language));
-    }
-  };
-
-  // 解绑逻辑
-  const handleUnbind = () => {
-    if (!selectedMatch) return;
-    
-    const userId = getUserId(user);
-    if (!userId) {
-      setUnbindStatus("请先登录后再进行操作");
-      return;
-    }
-    
-    fetch(`${API_BASE}/api/identity/unbind`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        user_id: userId, // 使用真实用户ID
-        match_id: selectedMatch
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") {
-          setBindInfo(null);
-          setRecognizeStatus(null);
-          setUnbindStatus(t("unbindSuccess", language));
-        } else {
-          setUnbindStatus(data.message || t("unbindFailed", language));
-        }
-      })
-      .catch(() => setUnbindStatus(t("unbindRequestFailed", language)));
-  };
 
   return (
     <div className="min-h-screen">
@@ -379,57 +283,6 @@ export default function Home() {
             <p className="text-xl text-gray-200 max-w-3xl mx-auto">{t("heatmapDescription", language)}</p>
           </div>
           
-          {/* 比赛选择与身份识别区 */}
-          <div className="w-full bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg mb-8 border border-white/20">
-            <div className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              {t("matchSelectionTitle", language)}
-            </div>
-            {location ? null : <div className="text-red-600 mb-4 flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              {t("gettingLocation", language)}
-            </div>}
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-4">
-              <select
-                className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-[200px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={selectedMatch || ""}
-                onChange={e => setSelectedMatch(e.target.value)}
-                disabled={matches.length === 0}
-              >
-                <option value="">{t("selectMatch", language)}</option>
-                {matches.map(m => (
-                  <option key={m.match_id} value={m.match_id}>{m.field_name || m.match_id}</option>
-                ))}
-              </select>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                  disabled={!selectedMatch || isCollecting}
-                  onClick={startCollect}
-                >{t("startMatch", language)}</button>
-                {isCollecting && (
-                  <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={stopCollect}>{t("endCollection", language)}</button>
-                )}
-                {bindInfo && (
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" onClick={handleUnbind}>{t("unbind", language)}</button>
-                )}
-              </div>
-            </div>
-            {recognizeStatus && <div className="text-blue-700 mb-2 flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              {recognizeStatus}
-            </div>}
-            {bindInfo && (
-              <div className="text-green-700 mb-2 flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                {t("bindingSuccess", language)}{bindInfo.global_id}，{t("confidence", language)}{(bindInfo.confidence*100).toFixed(1)}%
-              </div>
-            )}
-            {unbindStatus && <div className="text-orange-700 mb-2 flex items-center gap-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-              {unbindStatus}
-            </div>}
-          </div>
 
           {/* 主内容区 */}
           <div className="flex flex-col xl:flex-row items-center xl:items-start justify-center gap-6 lg:gap-8">
@@ -490,12 +343,6 @@ export default function Home() {
                         ))}
                       </select>
                       
-                      {/* 绑定后显示个人编号提示 */}
-                      {bindInfo && (
-                        <div className="text-green-400 font-bold text-sm bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm border border-green-400/30 text-center">
-                          {t("myNumber", language)}{bindInfo.global_id}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -511,26 +358,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 移动端统计数据预览 */}
-              <div className="xl:hidden w-full max-w-sm mb-6">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <h4 className="text-white font-semibold mb-3 text-center">实时数据</h4>
-                  <div className="grid grid-cols-2 gap-3 text-center">
-                    {bindInfo && (
-                      <>
-                        <div className="bg-white/10 rounded-lg p-3">
-                          <div className="text-white/80 text-xs mb-1">跑动距离</div>
-                          <div className="text-white font-bold">-- km</div>
-                        </div>
-                        <div className="bg-white/10 rounded-lg p-3">
-                          <div className="text-white/80 text-xs mb-1">平均速度</div>
-                          <div className="text-white font-bold">-- km/h</div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* 右侧热力图和统计区域 */}
@@ -549,7 +376,7 @@ export default function Home() {
                   <PlayerStatsBars 
                     language={language} 
                     matchId={selectedMatch}
-                    globalId={bindInfo?.global_id}
+                    globalId={undefined}
                   />
                 </div>
                 
@@ -557,7 +384,7 @@ export default function Home() {
                 <div>
                   <StatsCards 
                     matchId={selectedMatch}
-                    globalId={bindInfo?.global_id}
+                    globalId={undefined}
                     language={language}
                     fallbackDistance={distance} // 保持向后兼容
                   />
@@ -575,7 +402,7 @@ export default function Home() {
                 <PlayerStatsBars 
                   language={language} 
                   matchId={selectedMatch}
-                  globalId={bindInfo?.global_id}
+                  globalId={undefined}
                 />
               </div>
               
@@ -584,7 +411,7 @@ export default function Home() {
                 <h4 className="text-white font-semibold mb-4 text-center">统计概览</h4>
                 <StatsCards 
                   matchId={selectedMatch}
-                  globalId={bindInfo?.global_id}
+                  globalId={undefined}
                   language={language}
                   fallbackDistance={distance} // 保持向后兼容
                 />
