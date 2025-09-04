@@ -223,6 +223,45 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   }, [wsConnectedState]);
 
 
+  // 获取用户地理位置
+  const getCurrentPosition = useCallback((): Promise<GeolocationPosition> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error(language === 'zh' ? '您的浏览器不支持地理位置获取' : 'Your browser does not support geolocation'));
+        return;
+      }
+
+      setStatus(language === 'zh' ? '正在获取您的位置信息...' : 'Getting your location...');
+
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        (error) => {
+          let errorMessage = '';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = language === 'zh' ? '用户拒绝了位置访问请求' : 'User denied location access';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = language === 'zh' ? '位置信息不可用' : 'Location information is unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = language === 'zh' ? '获取位置超时' : 'Location request timed out';
+              break;
+            default:
+              errorMessage = language === 'zh' ? '获取位置时发生未知错误' : 'An unknown error occurred while getting location';
+              break;
+          }
+          reject(new Error(errorMessage));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000 // 1分钟缓存
+        }
+      );
+    });
+  }, [language]);
+
   const startMatch = useCallback(async () => {
     if (!isAuthenticated || !currentUserId) {
       alert(language === 'zh' ? '请先登录' : 'Please login first');
@@ -234,23 +273,41 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setIsStartDisabled(true);
       setIsLoading(true);
 
-      // 1. 调用后端API创建会话
-      const response = await fetch(`${API_BASE}/match-session/start`, {
+      // 1. 获取用户地理位置
+      setStatus(language === 'zh' ? '正在获取您的位置信息...' : 'Getting your location...');
+      const position = await getCurrentPosition();
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      // 2. 生成会话ID
+      const sessionId = `binding_${Date.now()}_${currentUserId}`;
+      setCurrentSessionId(sessionId);
+
+      // 3. 调用地理位置匹配的拍照触发API
+      setStatus(language === 'zh' ? '正在查找附近的摄像头设备...' : 'Looking for nearby camera devices...');
+      
+      const formData = new FormData();
+      formData.append('session_id', sessionId);
+      formData.append('user_id', currentUserId);
+      formData.append('user_latitude', latitude.toString());
+      formData.append('user_longitude', longitude.toString());
+      formData.append('duration_seconds', '30');
+      formData.append('max_distance_km', '5.0');
+
+      // 使用服务器的实际地址，而不是API代理
+      const serverUrl = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
+      const response = await fetch(`${serverUrl}/api/v1/binding/trigger-binding-photos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUserId })
+        body: formData
       });
 
       if (!response.ok) {
-        throw new Error('创建会话失败');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || language === 'zh' ? '启动拍照失败' : 'Failed to start photo capture');
       }
 
       const data = await response.json();
-      setCurrentSessionId(data.data.session_id);
-
-      // 后端服务器会自动向树莓派发送拍照信号，无需前端直接调用
-
-      setStatus(t('statusCapturing'));
+      setStatus('📸 ' + (data.message || (language === 'zh' ? '拍照已开始！请进入场地准备绑定' : 'Photo capture started! Please enter the field for binding')));
       setIsEndDisabled(false);
 
       // 30秒后自动提示可以结束
@@ -267,7 +324,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, t, currentSessionId, language, isAuthenticated]);
+  }, [currentUserId, t, currentSessionId, language, isAuthenticated, getCurrentPosition]);
 
   const endMatch = useCallback(async () => {
     if (!currentSessionId) {
