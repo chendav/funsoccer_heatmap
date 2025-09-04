@@ -4,7 +4,6 @@ import StatsCards from "@/components/StatsCards";
 import Heatmap from "@/components/Heatmap";
 import PlayerStatsBars from "@/components/PlayerStatsBars";
 import PlayerRankings from "@/components/PlayerRankings";
-import DeviceSelector from "@/components/DeviceSelector";
 import GeographicDeviceSelector, { MatchResult } from "@/components/GeographicDeviceSelector";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -42,7 +41,6 @@ export default function Home() {
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   const [matches, setMatches] = useState<{ match_id: string; field_name?: string }[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string | undefined>(undefined);
-  const [useGeographicSelector, setUseGeographicSelector] = useState(true);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
 
@@ -295,40 +293,12 @@ export default function Home() {
                 </div>
                 {/* 设备选择区域 */}
                 <div className="flex flex-col gap-3 items-center xl:items-start">
-                  {/* 选择器类型切换 */}
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      className={`px-3 py-1 text-sm rounded ${
-                        useGeographicSelector 
-                          ? "bg-white text-red-700 font-semibold" 
-                          : "bg-white/20 text-white/80"
-                      }`}
-                      onClick={() => setUseGeographicSelector(true)}
-                    >
-                      智能匹配
-                    </button>
-                    <button
-                      className={`px-3 py-1 text-sm rounded ${
-                        !useGeographicSelector 
-                          ? "bg-white text-red-700 font-semibold" 
-                          : "bg-white/20 text-white/80"
-                      }`}
-                      onClick={() => setUseGeographicSelector(false)}
-                    >
-                      手动选择
-                    </button>
-                  </div>
-                  
-                  {/* 条件渲染设备选择器 */}
-                  {useGeographicSelector ? (
-                    <GeographicDeviceSelector 
-                      value={deviceId} 
-                      onChange={handleGeographicDeviceSelect}
-                      sessionId={selectedMatch}
-                    />
-                  ) : (
-                    <DeviceSelector value={deviceId} onChange={setDeviceId} />
-                  )}
+                  {/* 智能设备匹配 */}
+                  <GeographicDeviceSelector 
+                    value={deviceId} 
+                    onChange={handleGeographicDeviceSelect}
+                    sessionId={selectedMatch}
+                  />
                   {/* 球员选择下拉菜单 */}
                   {trackIds.length > 0 && (
                     <div className="flex flex-col gap-2">
