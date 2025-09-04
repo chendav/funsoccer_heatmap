@@ -65,8 +65,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   }, [isAuthenticated, user, language]);
 
   // Use Next.js API routes as proxy to avoid HTTPS/mixed content issues
-  const API_BASE = '/api';
-  const EDGE_API_BASE = '/api';
+  const serverUrl = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
+  const API_BASE = serverUrl;
+  const EDGE_API_BASE = serverUrl;
 
   // 定义reset函数，需要在WebSocket回调中使用
   const resetUI = useCallback(() => {
@@ -295,7 +296,6 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       formData.append('max_distance_km', '5.0');
 
       // 使用服务器的实际地址，而不是API代理
-      const serverUrl = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
       const response = await fetch(`${serverUrl}/api/v1/binding/trigger-binding-photos`, {
         method: 'POST',
         body: formData
@@ -338,7 +338,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setIsLoading(true);
 
       // 获取照片列表 - 通过后端服务器
-      const response = await fetch(`${API_BASE}/match-session/photos/${currentSessionId}`);
+      const response = await fetch(`${API_BASE}/api/v1/match-session/photos/${currentSessionId}`);
 
       if (!response.ok) {
         throw new Error('获取照片失败');
@@ -379,7 +379,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
       setIsLoading(true);
       
       // 调用球员认领API
-      const response = await fetch(`${API_BASE}/match-session/claim-player`, {
+      const response = await fetch(`${API_BASE}/api/v1/match-session/claim-player`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -519,13 +519,13 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
                         {photo.filename.startsWith('mock_') ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={`${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                            src={`${EDGE_API_BASE}/api/v1/photo/thumbnail/${photo.filename}`}
                             alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <Image
-                            src={photo.thumbnail_url || `${EDGE_API_BASE}/photo/thumbnail/${photo.filename}`}
+                            src={photo.thumbnail_url || `${EDGE_API_BASE}/api/v1/photo/thumbnail/${photo.filename}`}
                             alt={`${t('camera')} ${photo.camera_id.toUpperCase()}`}
                             fill
                             className="object-cover"
