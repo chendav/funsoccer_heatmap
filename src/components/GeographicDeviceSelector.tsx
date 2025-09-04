@@ -213,8 +213,9 @@ export default function GeographicDeviceSelector({
       }
     };
 
+    // 只在组件首次加载时执行一次
     initializeLocationMatching();
-  }, [sessionId, onChange, apiBase, findNearbyDevices, matchUserToDevice]);
+  }, []); // 移除所有依赖项，只执行一次
 
   // 手动选择设备
   const handleManualDeviceSelect = (deviceId: string) => {
