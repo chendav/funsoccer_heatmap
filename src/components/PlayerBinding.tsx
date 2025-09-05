@@ -303,7 +303,9 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || language === 'zh' ? '启动拍照失败' : 'Failed to start photo capture');
+        const errorMessage = errorData.detail || (language === 'zh' ? '启动拍照失败' : 'Failed to start photo capture');
+        console.error('API Error Details:', { status: response.status, statusText: response.statusText, errorData });
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
