@@ -11,10 +11,6 @@
     {
       "source": "/health",
       "destination": "http://47.239.73.57:8000/health"
-    },
-    {
-      "source": "/ws/:path*",
-      "destination": "http://47.239.73.57:8000/ws/:path*"
     }
   ],
   "headers": [

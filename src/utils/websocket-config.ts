@@ -41,20 +41,32 @@ export function getWebSocketConfig(): WebSocketConfig {
     };
   }
   
-  // 回退配置：使用相对路径通过代理
+  // For HTTPS pages, we cannot use ws:// due to Mixed Content policy
+  // Since Vercel doesn't support WebSocket proxying, we need to disable WebSocket for HTTPS
+  if (isSecure && typeof window !== 'undefined') {
+    // Check if we're on a production domain
+    if (window.location.hostname === 'funsoccer.app' || window.location.hostname.includes('vercel.app')) {
+      return {
+        url: '',
+        protocol: 'wss',
+        canConnect: false,
+        warningMessage: 'WebSocket暂时不可用于HTTPS连接。我们正在升级服务器以支持安全连接。'
+      };
+    }
+  }
+  
+  // For local development or HTTP pages, use direct connection
   if (typeof window !== 'undefined') {
-    const protocol = isSecure ? 'wss' : 'ws';
-    const host = window.location.host;
     return {
-      url: `${protocol}://${host}/ws/detection`,
-      protocol: protocol,
-      canConnect: true
+      url: 'ws://47.239.73.57:8000/ws/detection',
+      protocol: 'ws',
+      canConnect: !isSecure // Only allow connection on HTTP pages
     };
   }
   
   // 服务器端渲染时的默认值
   return {
-    url: 'ws://localhost:3000/ws/detection',
+    url: 'ws://47.239.73.57:8000/ws/detection',
     protocol: 'ws',
     canConnect: true
   };
