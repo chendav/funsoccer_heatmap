@@ -5,16 +5,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { latitude, longitude, user_id, session_id } = body;
 
-    // 获取真实树莓派设备
+    // 获取真实树莓派设备 (Edmonton, Canada)
     const realDevice = {
       device_id: "edge_raspberrypi_bbb576",
-      device_name: "树莓派设备 - 科技园",
+      device_name: "树莓派设备 - Edmonton",
       device_type: "raspberry_pi",
-      latitude: 22.3964,
-      longitude: 114.1095,
-      city: "香港",
-      address: "香港科技园",
-      field_name: "科技园足球场",
+      latitude: 53.5501,
+      longitude: -113.4687,
+      city: "Edmonton",
+      address: "Edmonton, Alberta, Canada",
+      field_name: "Edmonton Soccer Field",
       field_type: "11人制",
       cameras: [],
       last_online: new Date().toISOString()
