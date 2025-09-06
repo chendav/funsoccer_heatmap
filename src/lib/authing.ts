@@ -8,10 +8,24 @@ const authingConfig = {
   redirectUri: process.env.NEXTAUTH_URL || 'http://localhost:3000',
 };
 
+// Debug logging
+if (typeof window !== 'undefined') {
+  console.log('[Authing Init] Environment variables:', {
+    domain: authingConfig.domain || 'NOT SET',
+    appId: authingConfig.appId || 'NOT SET',
+    hasAppSecret: !!authingConfig.appSecret,
+    redirectUri: authingConfig.redirectUri,
+  });
+}
+
 // 创建 Authing 客户端
 export const authingClient = new AuthenticationClient({
   appId: authingConfig.appId,
   appHost: `https://${authingConfig.domain}`,
+  timeout: 30000, // 30 seconds timeout
+  onError: (code: number, message: string, data: any) => {
+    console.error('[Authing Global Error]:', { code, message, data });
+  },
 });
 
 // 用户信息类型
@@ -68,7 +82,16 @@ export async function loginWithPassword(username: string, password: string): Pro
 // 邮箱密码登录
 export async function loginWithEmail(email: string, password: string): Promise<LoginResponse> {
   try {
+    console.log('[Authing] Attempting email login for:', email);
+    console.log('[Authing] Config:', {
+      appId: authingConfig.appId,
+      appHost: `https://${authingConfig.domain}`,
+    });
+    
     const response = await authingClient.loginByEmail(email, password);
+    
+    console.log('[Authing] Login response:', response);
+    
     return {
       code: 200,
       message: '登录成功',
@@ -82,6 +105,12 @@ export async function loginWithEmail(email: string, password: string): Promise<L
       },
     };
   } catch (error: any) {
+    console.error('[Authing] Login error:', {
+      code: error.code,
+      message: error.message,
+      error: error,
+    });
+    
     return {
       code: error.code || 500,
       message: error.message || '登录失败',
