@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/proxy/api/:path*',
+        destination: 'http://47.239.73.57:8000/api/:path*',
+      },
+      {
         source: '/api/proxy/:path*',
         destination: 'http://47.239.73.57:8000/:path*',
       },

@@ -21,27 +21,40 @@ export function getWebSocketConfig(): WebSocketConfig {
   // 优先使用环境变量
   if (process.env.NEXT_PUBLIC_WS_URL) {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
-    const isWss = wsUrl.startsWith('wss');
     
+    // 如果是相对路径，构建完整的 WebSocket URL
+    if (wsUrl.startsWith('/')) {
+      const protocol = isSecure ? 'wss' : 'ws';
+      const host = typeof window !== 'undefined' ? window.location.host : 'localhost:3000';
+      return {
+        url: `${protocol}://${host}${wsUrl}`,
+        protocol: protocol,
+        canConnect: true
+      };
+    }
+    
+    const isWss = wsUrl.startsWith('wss');
     return {
       url: wsUrl,
       protocol: isWss ? 'wss' : 'ws',
-      canConnect: true // 环境变量配置的 URL 应该总是可以连接
+      canConnect: true
     };
   }
   
-  // 回退配置：现在我们支持 WSS，所以 HTTPS 页面可以连接到 WSS
-  if (isSecure) {
+  // 回退配置：使用相对路径通过代理
+  if (typeof window !== 'undefined') {
+    const protocol = isSecure ? 'wss' : 'ws';
+    const host = window.location.host;
     return {
-      url: 'wss://api.funsoccer.app/ws/detection',
-      protocol: 'wss',
-      canConnect: true // 恢复WebSocket连接
+      url: `${protocol}://${host}/ws/detection`,
+      protocol: protocol,
+      canConnect: true
     };
   }
   
-  // HTTP页面回退到不安全的 WebSocket
+  // 服务器端渲染时的默认值
   return {
-    url: 'ws://47.239.73.57:8000/ws/detection',
+    url: 'ws://localhost:3000/ws/detection',
     protocol: 'ws',
     canConnect: true
   };
