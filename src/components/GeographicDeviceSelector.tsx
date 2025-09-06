@@ -65,6 +65,9 @@ export default function GeographicDeviceSelector({
   const [locationStatus, setLocationStatus] = useState<string>("正在获取位置...");
 
   const apiBase = process.env.NEXT_PUBLIC_BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || "https://api.funsoccer.app";
+  
+  // Handle proxy path - if apiBase ends with /proxy, we don't need to add /api prefix
+  const apiPath = apiBase.endsWith('/proxy') ? '' : '/api';
 
   // 获取用户地理位置
   const getUserLocation = async (): Promise<UserLocation> => {
@@ -118,7 +121,7 @@ export default function GeographicDeviceSelector({
   const findNearbyDevices = useCallback(async (location: UserLocation): Promise<DeviceInfo[]> => {
     try {
       const response = await fetch(
-        `${apiBase}/api/v1/device-location/devices/nearby?` +
+        `${apiBase}${apiPath}/v1/device-location/devices/nearby?` +
         `latitude=${location.latitude}&longitude=${location.longitude}&` +
         `max_distance_km=10&limit=10`
       );
@@ -133,7 +136,7 @@ export default function GeographicDeviceSelector({
       console.error("查找附近设备失败:", error);
       throw error;
     }
-  }, [apiBase]);
+  }, [apiBase, apiPath]);
 
   // 匹配用户到设备
   const matchUserToDevice = useCallback(async (location: UserLocation): Promise<MatchResult> => {
@@ -147,7 +150,7 @@ export default function GeographicDeviceSelector({
         address: location.address
       };
 
-      const response = await fetch(`${apiBase}/api/v1/device-location/match`, {
+      const response = await fetch(`${apiBase}${apiPath}/v1/device-location/match`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -165,7 +168,7 @@ export default function GeographicDeviceSelector({
       console.error("设备匹配失败:", error);
       throw error;
     }
-  }, [apiBase, sessionId]);
+  }, [apiBase, apiPath, sessionId]);
 
   // 初始化地理位置和设备匹配
   useEffect(() => {
