@@ -9,6 +9,19 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // 配置 API 代理以解决 Mixed Content 问题
+  async rewrites() {
+    return [
+      {
+        source: '/api/proxy/:path*',
+        destination: 'http://47.239.73.57:8000/:path*',
+      },
+      {
+        source: '/ws/:path*',
+        destination: 'http://47.239.73.57:8000/ws/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
