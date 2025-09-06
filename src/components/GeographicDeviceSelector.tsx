@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { sseEventService } from "@/services/sse-event-service";
 
 interface UserLocation {
   latitude: number;
@@ -117,13 +118,41 @@ export default function GeographicDeviceSelector({
     });
   };
 
-  // 查找附近设备
+  // 查找附近设备 - 使用SSE服务
   const findNearbyDevices = useCallback(async (location: UserLocation): Promise<DeviceInfo[]> => {
     try {
-      // 临时使用模拟数据，避免 404 错误
-      console.log("使用模拟设备数据");
+      // 首先尝试使用SSE服务获取真实设备
+      const devices = await sseEventService.findNearbyDevices(
+        location.latitude,
+        location.longitude,
+        10 // 10km radius
+      );
       
-      // 模拟香港地区的设备
+      if (devices && devices.length > 0) {
+        console.log("Found real devices via SSE:", devices);
+        
+        // Transform SSE device data to DeviceInfo format
+        const deviceInfos: DeviceInfo[] = devices.map(device => ({
+          device_id: device.device_id,
+          device_name: device.info?.device_name || device.device_id,
+          device_type: device.info?.device_type || "raspberry_pi",
+          latitude: device.location?.latitude,
+          longitude: device.location?.longitude,
+          distance_km: device.distance_km,
+          city: device.info?.city || "香港",
+          address: device.info?.address,
+          field_name: device.info?.field_name,
+          field_type: device.info?.field_type,
+          cameras: device.info?.cameras || [],
+          last_online: device.last_heartbeat
+        }));
+        
+        return deviceInfos;
+      }
+      
+      // 如果没有真实设备，使用模拟数据
+      console.log("No real devices found, using mock data");
+      
       const mockDevices: DeviceInfo[] = [
         {
           device_id: "edge_device_001",
@@ -172,7 +201,7 @@ export default function GeographicDeviceSelector({
       console.error("查找附近设备失败:", error);
       throw error;
     }
-  }, [apiBase, apiPath]);
+  }, []);
   
   // 计算两点间距离（公里）
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -225,11 +254,14 @@ export default function GeographicDeviceSelector({
       setError(null);
 
       try {
-        // 1. 获取用户位置
+        // 1. 连接到SSE事件流
+        sseEventService.connect();
+        
+        // 2. 获取用户位置
         const location = await getUserLocation();
         setUserLocation(location);
 
-        // 2. 查找附近设备
+        // 3. 查找附近设备
         setLocationStatus("正在查找附近的设备...");
         const devices = await findNearbyDevices(location);
         setNearbyDevices(devices);
@@ -240,7 +272,7 @@ export default function GeographicDeviceSelector({
           return;
         }
 
-        // 3. 进行设备匹配
+        // 4. 进行设备匹配
         setLocationStatus("正在为您匹配最佳设备...");
         const matchResult = await matchUserToDevice(location);
         setMatchResult(matchResult);
@@ -249,6 +281,10 @@ export default function GeographicDeviceSelector({
           setLocationStatus(
             `已为您匹配到距离 ${matchResult.matched_device.distance_km?.toFixed(1)}km 的设备`
           );
+          
+          // 订阅设备事件
+          await sseEventService.subscribeToDevice(matchResult.matched_device.device_id);
+          
           onChange(matchResult.matched_device.device_id, matchResult);
         } else {
           setError(matchResult.message || "设备匹配失败");
@@ -266,6 +302,33 @@ export default function GeographicDeviceSelector({
 
     // 只在组件首次加载时执行一次
     initializeLocationMatching();
+    
+    // 监听设备状态更新
+    const unsubscribeDeviceUpdate = sseEventService.on('device_update', (event) => {
+      console.log('Device update:', event.data);
+      
+      // 更新设备列表中的设备状态
+      setNearbyDevices(prevDevices => 
+        prevDevices.map(device => 
+          device.device_id === event.data.device_id
+            ? { ...device, last_online: new Date().toISOString() }
+            : device
+        )
+      );
+    });
+    
+    // 监听设备离线事件
+    const unsubscribeDeviceOffline = sseEventService.on('device_offline', (event) => {
+      console.log('Device offline:', event.data);
+      setLocationStatus(`设备 ${event.data.device_id} 已离线`);
+    });
+    
+    // 清理函数
+    return () => {
+      unsubscribeDeviceUpdate();
+      unsubscribeDeviceOffline();
+      sseEventService.disconnect();
+    };
   }, []); // 移除所有依赖项，只执行一次
 
   // 手动选择设备
