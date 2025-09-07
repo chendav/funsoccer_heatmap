@@ -38,7 +38,9 @@ export class SSEEventService {
   private reconnectDelay: number = 1000;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_API_BASE || '';
+    // For client-side, use relative path to use Next.js API routes
+    // For server-side or if explicitly provided, use the baseUrl
+    this.baseUrl = baseUrl || (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_API_BASE || '');
     this.clientId = this.generateClientId();
   }
 
