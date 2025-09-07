@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
     
-    const response = await fetch(`${BACKEND_URL}/api/heatmap/optimized${queryString ? `?${queryString}` : ''}`, {
+    const response = await fetch(`${BACKEND_URL}/api/v1/devices/nearby${queryString ? `?${queryString}` : ''}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -15,34 +15,25 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      // 返回模拟热力图数据
+      // Return mock data if backend is unavailable
       return NextResponse.json({
         success: true,
-        data: {
-          heatmap_data: [],
-          metadata: {
-            device_id: searchParams.get('device_id'),
-            total_points: 0,
-            generated_at: new Date().toISOString()
-          }
-        }
+        devices: [],
+        total: 0,
+        message: 'No devices available'
       });
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Heatmap proxy error:', error);
-    // 返回空热力图数据
+    console.error('Devices nearby proxy error:', error);
+    // Return empty list instead of error
     return NextResponse.json({
       success: true,
-      data: {
-        heatmap_data: [],
-        metadata: {
-          total_points: 0,
-          generated_at: new Date().toISOString()
-        }
-      }
+      devices: [],
+      total: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 }
