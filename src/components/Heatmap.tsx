@@ -28,24 +28,33 @@ export default function Heatmap({ deviceId, trackId }: HeatmapProps) {
     setError(null);
     setPositionData({});
     
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE || "";
-    fetch(`${apiBase}/api/player-positions?device_id=${deviceId}&limit=200`)
-      .then(res => {
-        if (!res.ok) throw new Error("网络错误");
-        return res.json();
-      })
-      .then(data => {
-        const positions = data.position_data || {};
-        console.log('[Heatmap] 加载位置数据:', positions);
-        console.log('[Heatmap] 可用球员ID:', Object.keys(positions));
-        setPositionData(positions);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('API请求失败:', error);
-        setError('加载位置数据失败');
-        setLoading(false);
-      });
+    // 暂时使用模拟数据，因为实际的位置数据需要match_id
+    // 在地理设备选择器中，我们只有device_id，需要先创建或获取match
+    setTimeout(() => {
+      // 模拟数据 - 展示几个示例位置点
+      const mockData: Record<string, PositionPoint[]> = {
+        'player_1': [
+          { x: 0.5, y: 0.3, timestamp: new Date().toISOString() },
+          { x: 0.4, y: 0.4, timestamp: new Date().toISOString() },
+          { x: 0.6, y: 0.35, timestamp: new Date().toISOString() },
+        ],
+        'player_2': [
+          { x: 0.3, y: 0.6, timestamp: new Date().toISOString() },
+          { x: 0.35, y: 0.65, timestamp: new Date().toISOString() },
+          { x: 0.32, y: 0.7, timestamp: new Date().toISOString() },
+        ]
+      };
+      
+      console.log('[Heatmap] 加载模拟位置数据:', mockData);
+      console.log('[Heatmap] 可用球员ID:', Object.keys(mockData));
+      setPositionData(mockData);
+      setLoading(false);
+    }, 500);
+    
+    // TODO: 实际实现需要：
+    // 1. 通过deviceId获取或创建match
+    // 2. 通过match_id获取球员轨迹数据
+    // 3. 将轨迹数据转换为位置点格式
   }, [deviceId]);
 
   // 获取当前球员的位置点
