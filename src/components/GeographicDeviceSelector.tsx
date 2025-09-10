@@ -236,6 +236,25 @@ export default function GeographicDeviceSelector({
       });
 
       if (!response.ok) {
+        // If endpoint doesn't exist, use fallback matching logic
+        if (response.status === 404) {
+          console.log("Device location matching endpoint not available, using fallback");
+          // Return a mock match result with the first nearby device
+          const devices = await findNearbyDevices(location);
+          if (devices.length > 0) {
+            return {
+              success: true,
+              matched_device: devices[0],
+              alternative_devices: devices.slice(1),
+              user_location: location,
+              match_info: {
+                strategy: "fallback",
+                distance_km: devices[0].distance_km || 0,
+                expires_at: new Date(Date.now() + 3600000).toISOString()
+              }
+            };
+          }
+        }
         throw new Error(`设备匹配失败: ${response.status}`);
       }
 
@@ -243,9 +262,24 @@ export default function GeographicDeviceSelector({
       return result as MatchResult;
     } catch (error) {
       console.error("设备匹配失败:", error);
+      // If network error or other issue, use fallback
+      const devices = await findNearbyDevices(location);
+      if (devices.length > 0) {
+        return {
+          success: true,
+          matched_device: devices[0],
+          alternative_devices: devices.slice(1),
+          user_location: location,
+          match_info: {
+            strategy: "fallback",
+            distance_km: devices[0].distance_km || 0,
+            expires_at: new Date(Date.now() + 3600000).toISOString()
+          }
+        };
+      }
       throw error;
     }
-  }, [apiBase, apiPath, sessionId]);
+  }, [apiBase, apiPath, sessionId, findNearbyDevices]);
 
   // 初始化地理位置和设备匹配
   useEffect(() => {
