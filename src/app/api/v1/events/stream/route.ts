@@ -22,13 +22,25 @@ export async function GET(request: NextRequest) {
       const url = `${BACKEND_URL}/api/v1/events/stream?client_id=${encodeURIComponent(client_id)}`;
       console.log('[SSE Proxy] Fetching from:', url);
       
-      const response = await fetch(url, {
+      // For development/self-signed certificates - in production, use proper certificates
+      const fetchOptions: RequestInit = {
         headers: {
           'Accept': 'text/event-stream',
           'Cache-Control': 'no-cache',
         },
         // Important: don't set signal to allow long-running connection
-      });
+      };
+
+      // In Node.js environment (server-side), we can bypass certificate validation for self-signed certs
+      if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+        const https = await import('https');
+        const agent = new https.Agent({
+          rejectUnauthorized: false
+        });
+        (fetchOptions as any).agent = agent;
+      }
+
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         console.error('[SSE Proxy] Backend error:', response.status, response.statusText);
