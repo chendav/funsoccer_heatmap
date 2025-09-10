@@ -249,8 +249,10 @@ export class SSEEventService {
 
       if (response.ok) {
         console.log(`[SSE] Subscribed to device ${deviceId}`);
+      } else if (response.status === 404) {
+        console.log(`[SSE] Device subscription endpoint not available (404) - skipping`);
       } else {
-        console.error(`[SSE] Failed to subscribe to device ${deviceId}`);
+        console.error(`[SSE] Failed to subscribe to device ${deviceId}: ${response.status}`);
       }
     } catch (error) {
       console.error(`[SSE] Error subscribing to device ${deviceId}:`, error);
