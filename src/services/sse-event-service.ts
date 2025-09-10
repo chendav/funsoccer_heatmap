@@ -38,9 +38,9 @@ export class SSEEventService {
   private reconnectDelay: number = 1000;
 
   constructor(baseUrl?: string) {
-    // For client-side, use relative path to use Next.js API routes
-    // For server-side or if explicitly provided, use the baseUrl
-    this.baseUrl = baseUrl || (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_API_BASE || '');
+    // Connect directly to backend SSE endpoint
+    // Vercel doesn't support SSE in API routes, so we must connect directly
+    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'https://47.239.73.57';
     this.clientId = this.generateClientId();
   }
 
