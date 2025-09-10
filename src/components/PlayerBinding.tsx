@@ -65,7 +65,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
   }, [isAuthenticated, user, language]);
 
   // Use Next.js API routes as proxy to avoid HTTPS/mixed content issues
-  const serverUrl = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
+  const serverUrl = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'https://api.funsoccer.app';
   const API_BASE = serverUrl;
   const EDGE_API_BASE = serverUrl;
 

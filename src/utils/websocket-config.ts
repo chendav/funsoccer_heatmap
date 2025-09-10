@@ -58,7 +58,7 @@ export function getWebSocketConfig(): WebSocketConfig {
   // For local development or HTTP pages, use direct connection
   if (typeof window !== 'undefined') {
     return {
-      url: 'ws://47.239.73.57:8000/ws/detection',
+      url: 'wss://api.funsoccer.app/ws/detection',
       protocol: 'ws',
       canConnect: !isSecure // Only allow connection on HTTP pages
     };
@@ -66,7 +66,7 @@ export function getWebSocketConfig(): WebSocketConfig {
   
   // 服务器端渲染时的默认值
   return {
-    url: 'ws://47.239.73.57:8000/ws/detection',
+    url: 'wss://api.funsoccer.app/ws/detection',
     protocol: 'ws',
     canConnect: true
   };

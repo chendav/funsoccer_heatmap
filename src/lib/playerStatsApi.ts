@@ -4,7 +4,7 @@
  */
 
 // 统一API前缀
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_BACKEND_API_BASE || "https://api.funsoccer.app";
 
 // 类型定义
 export interface PlayerStats {

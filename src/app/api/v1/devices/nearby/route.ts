@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'https://api.funsoccer.app';
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 // Server-side backend URL (HTTPS)
-const BACKEND_URL = process.env.BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || 'https://47.239.73.57';
+const BACKEND_URL = process.env.BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || 'https://api.funsoccer.app';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
