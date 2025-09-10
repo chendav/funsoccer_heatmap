@@ -157,13 +157,14 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
 
   // Check if WebSocket can connect (Mixed Content security)
   useEffect(() => {
-    if (!wsConfig.canConnect && typeof window !== 'undefined') {
-      setShowWebSocketAlert(true);
-      setIsStartDisabled(true); // 禁用开始按钮
-      if (window.location.protocol === 'https:') {
-        setStatus('🔧 ' + (wsConfig.warningMessage || '球员绑定服务正在维护中，请稍后再试'));
-      }
-    }
+    // Removed maintenance mode check - service is now operational
+    // if (!wsConfig.canConnect && typeof window !== 'undefined') {
+    //   setShowWebSocketAlert(true);
+    //   setIsStartDisabled(true); // 禁用开始按钮
+    //   if (window.location.protocol === 'https:') {
+    //     setStatus('🔧 ' + (wsConfig.warningMessage || '球员绑定服务正在维护中，请稍后再试'));
+    //   }
+    // }
   }, [wsConfig.canConnect, wsConfig.warningMessage]);
 
   // WebSocket连接 - 维护模式时不连接
@@ -551,30 +552,7 @@ export default function PlayerBinding({ language }: PlayerBindingProps) {
         </div>
       </Card>
       
-      {/* WebSocket Service Alert */}
-      {showWebSocketAlert && !wsConfig.canConnect && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <div className="text-center">
-              <div className="text-4xl mb-4">🔧</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {language === 'zh' ? '服务维护中' : 'Service Maintenance'}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {wsConfig.warningMessage || 
-                  (language === 'zh' ? '球员绑定服务正在维护中，请稍后再试' : 'Player binding service is under maintenance, please try again later')
-                }
-              </p>
-              <button
-                onClick={() => setShowWebSocketAlert(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                {language === 'zh' ? '我知道了' : 'Got it'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* WebSocket Service Alert - Removed as service is now operational */}
     </div>
   );
 }
