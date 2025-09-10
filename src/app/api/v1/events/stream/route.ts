@@ -1,71 +1,98 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'http://47.239.73.57:8000';
+// Server-side backend URL (HTTPS)
+const BACKEND_URL = process.env.BACKEND_API_BASE || process.env.NEXT_PUBLIC_API_BASE || 'https://47.239.73.57';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const queryString = searchParams.toString();
+  const client_id = searchParams.get('client_id') || 'unknown';
   
-  // SSE requires special handling - we need to proxy the stream
-  const url = `${BACKEND_URL}/api/v1/events/stream${queryString ? `?${queryString}` : ''}`;
+  console.log('[SSE Proxy] Connecting to backend:', BACKEND_URL);
+  console.log('[SSE Proxy] Client ID:', client_id);
   
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+  const encoder = new TextEncoder();
+  
+  // Create a TransformStream for SSE
+  const stream = new TransformStream();
+  const writer = stream.writable.getWriter();
+  
+  // Start the SSE connection in the background
+  (async () => {
+    try {
+      const url = `${BACKEND_URL}/api/v1/events/stream?client_id=${encodeURIComponent(client_id)}`;
+      console.log('[SSE Proxy] Fetching from:', url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+        },
+        // Important: don't set signal to allow long-running connection
+      });
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: 'Failed to connect to event stream' },
-        { status: response.status }
-      );
-    }
+      if (!response.ok) {
+        console.error('[SSE Proxy] Backend error:', response.status, response.statusText);
+        await writer.write(encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'Backend connection failed', status: response.status })}\n\n`));
+        await writer.close();
+        return;
+      }
 
-    // For SSE, we need to return a streaming response
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body?.getReader();
-        if (!reader) {
-          controller.close();
-          return;
-        }
+      if (!response.body) {
+        console.error('[SSE Proxy] No response body');
+        await writer.write(encoder.encode(`event: error\ndata: ${JSON.stringify({ error: 'No response body' })}\n\n`));
+        await writer.close();
+        return;
+      }
 
-        const decoder = new TextDecoder();
+      // Forward the SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      
+      while (true) {
+        const { done, value } = await reader.read();
         
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value, { stream: true });
-            controller.enqueue(new TextEncoder().encode(chunk));
-          }
-        } catch (error) {
-          console.error('Stream error:', error);
-        } finally {
-          controller.close();
-          reader.releaseLock();
+        if (done) {
+          console.log('[SSE Proxy] Stream ended');
+          break;
         }
-      },
-    });
+        
+        // Forward the chunk directly
+        await writer.write(value);
+      }
+      
+    } catch (error) {
+      console.error('[SSE Proxy] Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      await writer.write(encoder.encode(`event: error\ndata: ${JSON.stringify({ error: errorMessage })}\n\n`));
+    } finally {
+      try {
+        await writer.close();
+      } catch (e) {
+        // Writer might already be closed
+      }
+    }
+  })();
+  
+  // Return the readable stream with SSE headers
+  return new Response(stream.readable, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no', // Disable buffering for nginx
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no', // Disable buffering for nginx
-      },
-    });
-  } catch (error) {
-    console.error('SSE proxy error:', error);
-    return NextResponse.json(
-      { error: 'SSE proxy error', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
-  }
+// Handle OPTIONS for CORS
+export async function OPTIONS(request: NextRequest) {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
