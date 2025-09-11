@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import api, { Match, Session, ProcessingTask } from '@/services/api';
+import api, { Match, Session, ProcessingTask, setAuthToken } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginButton from '@/components/auth/LoginButton';
 
 interface SessionManagerProps {
   onSessionSelect?: (sessionId: string) => void;
 }
 
 export default function SessionManager({ onSessionSelect }: SessionManagerProps) {
+  const { isAuthenticated, accessToken } = useAuth();
   const [matches, setMatches] = useState<Match[]>([]);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
@@ -21,6 +24,15 @@ export default function SessionManager({ onSessionSelect }: SessionManagerProps)
     team_a_name: '',
     team_b_name: ''
   });
+
+  // 设置认证token
+  useEffect(() => {
+    if (accessToken) {
+      setAuthToken(accessToken);
+    } else {
+      setAuthToken(null);
+    }
+  }, [accessToken]);
 
   // 加载比赛列表
   useEffect(() => {
@@ -181,6 +193,21 @@ export default function SessionManager({ onSessionSelect }: SessionManagerProps)
       }
     }, 2000); // 每2秒轮询一次
   };
+
+  // 如果未登录，显示登录提示
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-yellow-800 mb-4">需要登录</h2>
+          <p className="text-yellow-700 mb-4">
+            您需要登录才能创建和管理比赛会话。
+          </p>
+          <LoginButton className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

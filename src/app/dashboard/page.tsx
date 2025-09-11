@@ -64,7 +64,7 @@ interface UserDashboardData {
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export default function Dashboard() {
-  const { user, isAuthenticated, accessToken } = useAuth();
+  const { user, isAuthenticated, accessToken, login } = useAuth();
   const router = useRouter();
   
   const [dashboardData, setDashboardData] = useState<UserDashboardData | null>(null);
@@ -72,9 +72,33 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "history" | "privacy">("overview");
 
+  // Handle OAuth callback parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userParam = urlParams.get('user');
+    const token = urlParams.get('token');
+    
+    if (userParam && token) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userParam));
+        // Store the authentication data
+        login(token, token, userData); // Using token as both access and refresh for now
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, '/dashboard');
+      } catch (error) {
+        console.error('Failed to process authentication data:', error);
+      }
+    }
+  }, [login]);
+
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      router.push("/");
+      // Don't redirect immediately if we might be processing OAuth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('user') && !urlParams.get('token')) {
+        router.push("/");
+      }
       return;
     }
     

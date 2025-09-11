@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import LoginModal from './LoginModal';
 
 interface LoginButtonProps {
   className?: string;
@@ -12,16 +10,25 @@ interface LoginButtonProps {
 
 export default function LoginButton({ className }: LoginButtonProps) {
   const { isAuthenticated, user, logout } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
 
-  const handleLoginSuccess = (loginData: any) => {
-    // LoginModal 会处理登录逻辑
-    console.log('登录成功:', loginData);
+  const handleLogin = () => {
+    // Redirect to Authing hosted login page
+    const authingDomain = process.env.NEXT_PUBLIC_AUTHING_DOMAIN;
+    const appId = process.env.NEXT_PUBLIC_AUTHING_APP_ID;
+    const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback`);
+    
+    const authingLoginUrl = `https://${authingDomain}/oidc/auth?client_id=${appId}&response_type=code&scope=openid profile email phone&redirect_uri=${redirectUri}&state=${Date.now()}`;
+    
+    window.location.href = authingLoginUrl;
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
+    // Optionally redirect to Authing logout
+    const authingDomain = process.env.NEXT_PUBLIC_AUTHING_DOMAIN;
+    const redirectUri = encodeURIComponent(window.location.origin);
+    window.location.href = `https://${authingDomain}/oidc/session/end?post_logout_redirect_uri=${redirectUri}`;
   };
 
   if (isAuthenticated && user) {
@@ -68,19 +75,11 @@ export default function LoginButton({ className }: LoginButtonProps) {
   }
 
   return (
-    <>
-      <Button
-        onClick={() => setShowLoginModal(true)}
-        className={className}
-      >
-        登录
-      </Button>
-      
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
-    </>
+    <Button
+      onClick={handleLogin}
+      className={className}
+    >
+      登录
+    </Button>
   );
 }
