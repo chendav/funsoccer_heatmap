@@ -17,6 +17,13 @@ export default function LoginButton({ className }: LoginButtonProps) {
     const authingDomain = process.env.NEXT_PUBLIC_AUTHING_DOMAIN;
     const appId = process.env.NEXT_PUBLIC_AUTHING_APP_ID;
     
+    // Check if required config is present
+    if (!authingDomain || !appId) {
+      console.error('Authing configuration missing:', { authingDomain, appId });
+      alert('Authentication configuration is missing. Please check environment variables.');
+      return;
+    }
+    
     // Determine redirect URI based on environment
     let redirectUri = '';
     if (typeof window !== 'undefined') {
@@ -36,9 +43,21 @@ export default function LoginButton({ className }: LoginButtonProps) {
     }
     
     const encodedRedirectUri = encodeURIComponent(redirectUri);
-    const authingLoginUrl = `https://${authingDomain}/oidc/auth?client_id=${appId}&response_type=code&scope=openid profile email phone&redirect_uri=${encodedRedirectUri}&state=${Date.now()}`;
+    
+    // Build OAuth URL with proper parameters
+    const params = new URLSearchParams({
+      client_id: appId || '',
+      response_type: 'code',
+      scope: 'openid profile email phone',
+      redirect_uri: redirectUri,
+      state: Date.now().toString(),
+      prompt: 'consent'
+    });
+    
+    const authingLoginUrl = `https://${authingDomain}/oidc/auth?${params.toString()}`;
     
     console.log('Redirecting to Authing with callback:', redirectUri);
+    console.log('Full OAuth URL:', authingLoginUrl);
     window.location.href = authingLoginUrl;
   };
 
