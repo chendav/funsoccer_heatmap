@@ -42,36 +42,25 @@ export default function LoginButton({ className }: LoginButtonProps) {
       }
     }
     
-    // Build OAuth URL with proper parameters
+    // Build OAuth URL with minimal required parameters
     const state = Date.now().toString();
-    const scope = 'openid profile email phone';
+    
+    // Try with minimal scope first
+    const scope = 'openid';
     
     // Debug: Show exactly what we're sending
     console.log('=== Authing OAuth Debug ===');
     console.log('Current hostname:', window.location.hostname);
-    console.log('Current origin:', window.location.origin);
-    console.log('Redirect URI (unencoded):', redirectUri);
-    console.log('Redirect URI (encoded):', encodeURIComponent(redirectUri));
+    console.log('Redirect URI:', redirectUri);
     console.log('App ID:', appId);
     console.log('Domain:', authingDomain);
     
-    // Manually build the URL to ensure proper encoding
-    const authingLoginUrl = 
-      `https://${authingDomain}/oidc/auth?` +
-      `client_id=${appId}` +
-      `&response_type=code` +
-      `&scope=${encodeURIComponent(scope)}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&state=${state}`;
+    // Try Authing's hosted login page instead of OIDC endpoint
+    // This is the simpler approach that should work
+    const authingLoginUrl = `https://${authingDomain}/login?app_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     
-    console.log('Full OAuth URL:', authingLoginUrl);
-    
-    // Copy to clipboard for debugging (optional)
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(redirectUri).then(() => {
-        console.log('Redirect URI copied to clipboard for Authing whitelist');
-      });
-    }
+    console.log('Full Login URL:', authingLoginUrl);
+    console.log('If this fails, try adding this exact URL to Authing whitelist:', redirectUri);
     
     window.location.href = authingLoginUrl;
   };
