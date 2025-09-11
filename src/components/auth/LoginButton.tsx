@@ -23,8 +23,11 @@ export default function LoginButton({ className }: LoginButtonProps) {
       const hostname = window.location.hostname;
       if (hostname === 'localhost') {
         redirectUri = 'http://localhost:3000/api/auth/callback';
+      } else if (hostname === 'funsoccer.app' || hostname === 'www.funsoccer.app') {
+        // Production domain
+        redirectUri = 'https://funsoccer.app/api/auth/callback';
       } else if (hostname.includes('vercel.app')) {
-        // Use the main Vercel deployment URL
+        // Always use the main Vercel alias for consistency
         redirectUri = 'https://soccer-heatmap-next.vercel.app/api/auth/callback';
       } else {
         // Fallback to current origin
