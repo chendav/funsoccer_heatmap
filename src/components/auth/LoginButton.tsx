@@ -42,25 +42,32 @@ export default function LoginButton({ className }: LoginButtonProps) {
       }
     }
     
-    // Build OAuth URL with minimal required parameters
-    const state = Date.now().toString();
+    // Build OIDC URL with correct parameters
+    const state = Math.random().toString(36).substring(7);
+    const nonce = Math.random().toString(36).substring(7);
     
-    // Try with minimal scope first
-    const scope = 'openid';
+    // Use space-separated scope as per OIDC spec
+    const scope = 'openid profile email phone';
     
-    // Debug: Show exactly what we're sending
-    console.log('=== Authing OAuth Debug ===');
-    console.log('Current hostname:', window.location.hostname);
+    // Debug output
+    console.log('=== Authing OIDC Debug ===');
     console.log('Redirect URI:', redirectUri);
     console.log('App ID:', appId);
-    console.log('Domain:', authingDomain);
     
-    // Try Authing's hosted login page instead of OIDC endpoint
-    // This is the simpler approach that should work
-    const authingLoginUrl = `https://${authingDomain}/login?app_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    // Build OIDC authorization URL
+    // Important: The order and format must match OIDC spec exactly
+    const params = new URLSearchParams();
+    params.append('client_id', appId);
+    params.append('redirect_uri', redirectUri);
+    params.append('scope', scope);
+    params.append('response_type', 'code');
+    params.append('state', state);
+    params.append('nonce', nonce);
+    params.append('prompt', 'login');
     
-    console.log('Full Login URL:', authingLoginUrl);
-    console.log('If this fails, try adding this exact URL to Authing whitelist:', redirectUri);
+    const authingLoginUrl = `https://${authingDomain}/oidc/auth?${params.toString()}`;
+    
+    console.log('OIDC URL:', authingLoginUrl);
     
     window.location.href = authingLoginUrl;
   };
