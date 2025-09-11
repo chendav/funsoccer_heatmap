@@ -227,7 +227,7 @@ export default function GeographicDeviceSelector({
         address: location.address
       };
 
-      const response = await fetch(`${apiBase}${apiPath}/v1/device-location/match`, {
+      const response = await fetch(`${apiBase}${apiPath}/device-location/match`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

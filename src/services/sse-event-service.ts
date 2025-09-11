@@ -56,7 +56,7 @@ export class SSEEventService {
       return; // Already connected
     }
 
-    const url = `${this.baseUrl}/api/v1/events/stream?client_id=${this.clientId}`;
+    const url = `${this.baseUrl}/api/events/stream?client_id=${this.clientId}`;
     
     console.log('[SSE] Connecting to event stream:', url);
 
@@ -239,7 +239,7 @@ export class SSEEventService {
    */
   public async subscribeToDevice(deviceId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/events/subscribe/${deviceId}`, {
+      const response = await fetch(`${this.baseUrl}/api/events/subscribe/${deviceId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -264,7 +264,7 @@ export class SSEEventService {
    */
   public async unsubscribeFromDevice(deviceId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/events/subscribe/${deviceId}?client_id=${this.clientId}`, {
+      const response = await fetch(`${this.baseUrl}/api/events/subscribe/${deviceId}?client_id=${this.clientId}`, {
         method: 'DELETE'
       });
 
@@ -281,7 +281,7 @@ export class SSEEventService {
    */
   public async sendCommand(deviceId: string, command: string, parameters?: any): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/devices/${deviceId}/command`, {
+      const response = await fetch(`${this.baseUrl}/api/devices/${deviceId}/command`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ export class SSEEventService {
    */
   public async getOnlineDevices(): Promise<DeviceState[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/devices/online`);
+      const response = await fetch(`${this.baseUrl}/api/devices/online`);
       if (response.ok) {
         const data = await response.json();
         return data.devices;
@@ -334,7 +334,7 @@ export class SSEEventService {
         max_distance_km: maxDistance.toString()
       });
 
-      const response = await fetch(`${this.baseUrl}/api/v1/devices/nearby?${params}`);
+      const response = await fetch(`${this.baseUrl}/api/devices/nearby?${params}`);
       if (response.ok) {
         const data = await response.json();
         return data.devices;
