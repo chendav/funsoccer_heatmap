@@ -19,10 +19,19 @@ export default function LoginButton({ className }: LoginButtonProps) {
     
     // Check if required config is present
     if (!authingDomain || !appId) {
-      console.error('Authing configuration missing:', { authingDomain, appId });
+      console.error('Authing configuration missing:', { 
+        authingDomain, 
+        appId,
+        envDomain: process.env.NEXT_PUBLIC_AUTHING_DOMAIN,
+        envAppId: process.env.NEXT_PUBLIC_AUTHING_APP_ID
+      });
       alert('Authentication configuration is missing. Please check environment variables.');
       return;
     }
+    
+    // Log the actual App ID being used
+    console.log('Using Authing App ID:', appId);
+    console.log('App ID length:', appId.length);
     
     // Determine redirect URI based on environment
     let redirectUri = '';
