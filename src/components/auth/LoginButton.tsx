@@ -42,19 +42,19 @@ export default function LoginButton({ className }: LoginButtonProps) {
       }
     }
     
-    const encodedRedirectUri = encodeURIComponent(redirectUri);
-    
     // Build OAuth URL with proper parameters
-    const params = new URLSearchParams({
-      client_id: appId || '',
-      response_type: 'code',
-      scope: 'openid profile email phone',
-      redirect_uri: redirectUri,
-      state: Date.now().toString(),
-      prompt: 'consent'
-    });
+    // Note: Don't use URLSearchParams as it may double-encode
+    const state = Date.now().toString();
+    const scope = 'openid profile email phone';
     
-    const authingLoginUrl = `https://${authingDomain}/oidc/auth?${params.toString()}`;
+    // Manually build the URL to ensure proper encoding
+    const authingLoginUrl = 
+      `https://${authingDomain}/oidc/auth?` +
+      `client_id=${appId}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&state=${state}`;
     
     console.log('Redirecting to Authing with callback:', redirectUri);
     console.log('Full OAuth URL:', authingLoginUrl);
