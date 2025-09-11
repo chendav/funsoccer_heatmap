@@ -57,6 +57,13 @@ git commit -m "Fix authentication callback configuration"
 git push
 ```
 
+## Environment Variables Updated
+
+✅ Updated on Vercel (2025-01-11):
+- NEXT_PUBLIC_AUTHING_APP_ID=68b7cbae2816014ddfcbba17
+- NEXT_PUBLIC_AUTHING_DOMAIN=funsoccer.authing.cn
+- NEXT_PUBLIC_API_BASE=http://47.239.73.57:8000
+
 ## Testing
 
 After completing these steps:
