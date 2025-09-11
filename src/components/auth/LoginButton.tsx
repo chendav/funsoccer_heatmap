@@ -16,10 +16,26 @@ export default function LoginButton({ className }: LoginButtonProps) {
     // Redirect to Authing hosted login page
     const authingDomain = process.env.NEXT_PUBLIC_AUTHING_DOMAIN;
     const appId = process.env.NEXT_PUBLIC_AUTHING_APP_ID;
-    const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback`);
     
-    const authingLoginUrl = `https://${authingDomain}/oidc/auth?client_id=${appId}&response_type=code&scope=openid profile email phone&redirect_uri=${redirectUri}&state=${Date.now()}`;
+    // Determine redirect URI based on environment
+    let redirectUri = '';
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost') {
+        redirectUri = 'http://localhost:3000/api/auth/callback';
+      } else if (hostname.includes('vercel.app')) {
+        // Use the main Vercel deployment URL
+        redirectUri = 'https://soccer-heatmap-next.vercel.app/api/auth/callback';
+      } else {
+        // Fallback to current origin
+        redirectUri = `${window.location.origin}/api/auth/callback`;
+      }
+    }
     
+    const encodedRedirectUri = encodeURIComponent(redirectUri);
+    const authingLoginUrl = `https://${authingDomain}/oidc/auth?client_id=${appId}&response_type=code&scope=openid profile email phone&redirect_uri=${encodedRedirectUri}&state=${Date.now()}`;
+    
+    console.log('Redirecting to Authing with callback:', redirectUri);
     window.location.href = authingLoginUrl;
   };
 
