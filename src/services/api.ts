@@ -41,8 +41,20 @@ const apiRequest = async <T>(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`API Error: ${response.status} - ${error}`);
+    let errorMessage = '';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.detail || errorData.message || JSON.stringify(errorData);
+    } catch {
+      errorMessage = await response.text();
+    }
+    
+    // Special handling for authentication errors
+    if (response.status === 403 || response.status === 401) {
+      throw new Error(`Authentication required. Please log in first.`);
+    }
+    
+    throw new Error(`${errorMessage || response.statusText}`);
   }
 
   return response.json();
