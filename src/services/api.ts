@@ -137,6 +137,53 @@ export const matchAPI = {
   },
 };
 
+// ========== 参与者管理API ==========
+export interface Participant {
+  id: string;
+  match_id: string;
+  user_id?: string;
+  jersey_number?: number;
+  position?: string;
+  team?: string;
+  is_active: boolean;
+  session_id?: string;
+  joined_at: string;
+}
+
+export const participantAPI = {
+  // 加入比赛
+  joinMatch: async (data: {
+    join_code: string;
+    jersey_number?: number;
+    position?: string;
+    team?: string;
+  }): Promise<Participant> => {
+    return apiRequest<Participant>('/api/participants/join', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // 开始个人运动
+  startPersonalSession: async (participantId: string) => {
+    return apiRequest(`/api/participants/${participantId}/start`, {
+      method: 'POST',
+    });
+  },
+
+  // 结束个人运动
+  stopPersonalSession: async (participantId: string) => {
+    return apiRequest(`/api/participants/${participantId}/stop`, {
+      method: 'POST',
+    });
+  },
+
+  // 获取参与者信息
+  getInfo: async (participantId: string): Promise<Participant> => {
+    return apiRequest<Participant>(`/api/participants/${participantId}`);
+  },
+};
+
 // ========== 会话管理API ==========
 export interface Session {
   id: string;
@@ -387,6 +434,7 @@ export const dataAPI = {
 export default {
   auth: authAPI,
   match: matchAPI,
+  participant: participantAPI,
   session: sessionAPI,
   processing: processingAPI,
   display: displayAPI,

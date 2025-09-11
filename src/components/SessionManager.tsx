@@ -73,6 +73,7 @@ export default function SessionManager({ onSessionSelect }: SessionManagerProps)
       setLoading(true);
       setError(null);
       
+      // 1. 创建会话
       const session = await api.session.start({
         match_id: currentMatch.id,
         player_count: 22,
@@ -80,6 +81,14 @@ export default function SessionManager({ onSessionSelect }: SessionManagerProps)
       });
       
       setCurrentSession(session);
+      
+      // 2. 自动激活会话 - 这会触发边缘设备开始工作
+      if (session.status === 'preparing') {
+        const activatedSession = await api.session.activate(session.id);
+        setCurrentSession(activatedSession);
+        console.log('Session activated, edge devices will start capturing');
+      }
+      
       onSessionSelect?.(session.id);
     } catch (err) {
       console.error('Failed to start session:', err);
