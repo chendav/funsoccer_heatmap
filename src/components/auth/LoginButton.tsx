@@ -43,9 +43,17 @@ export default function LoginButton({ className }: LoginButtonProps) {
     }
     
     // Build OAuth URL with proper parameters
-    // Note: Don't use URLSearchParams as it may double-encode
     const state = Date.now().toString();
     const scope = 'openid profile email phone';
+    
+    // Debug: Show exactly what we're sending
+    console.log('=== Authing OAuth Debug ===');
+    console.log('Current hostname:', window.location.hostname);
+    console.log('Current origin:', window.location.origin);
+    console.log('Redirect URI (unencoded):', redirectUri);
+    console.log('Redirect URI (encoded):', encodeURIComponent(redirectUri));
+    console.log('App ID:', appId);
+    console.log('Domain:', authingDomain);
     
     // Manually build the URL to ensure proper encoding
     const authingLoginUrl = 
@@ -56,8 +64,15 @@ export default function LoginButton({ className }: LoginButtonProps) {
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&state=${state}`;
     
-    console.log('Redirecting to Authing with callback:', redirectUri);
     console.log('Full OAuth URL:', authingLoginUrl);
+    
+    // Copy to clipboard for debugging (optional)
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(redirectUri).then(() => {
+        console.log('Redirect URI copied to clipboard for Authing whitelist');
+      });
+    }
+    
     window.location.href = authingLoginUrl;
   };
 
