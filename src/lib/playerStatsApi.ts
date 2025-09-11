@@ -113,35 +113,35 @@ export class PlayerStatsApiService {
    * 获取比赛中所有球员的统计数据
    */
   static async getMatchPlayerStats(matchId: string): Promise<MatchPlayerStatsResponse> {
-    return apiRequest<MatchPlayerStatsResponse>(`/api/v1/matches/${matchId}/player-stats`);
+    return apiRequest<MatchPlayerStatsResponse>(`/api/matches/${matchId}/player-stats`);
   }
 
   /**
    * 获取单个球员的统计数据
    */
   static async getPlayerStats(matchId: string, globalId: number): Promise<SinglePlayerStatsResponse> {
-    return apiRequest<SinglePlayerStatsResponse>(`/api/v1/matches/${matchId}/players/${globalId}/stats`);
+    return apiRequest<SinglePlayerStatsResponse>(`/api/matches/${matchId}/players/${globalId}/stats`);
   }
 
   /**
    * 获取比赛统计数据摘要
    */
   static async getMatchStatsSummary(matchId: string): Promise<MatchStatsSummaryResponse> {
-    return apiRequest<MatchStatsSummaryResponse>(`/api/v1/matches/${matchId}/player-stats/summary`);
+    return apiRequest<MatchStatsSummaryResponse>(`/api/matches/${matchId}/player-stats/summary`);
   }
 
   /**
    * 获取实时统计数据摘要
    */
   static async getRealtimeStatsSummary(matchId: string): Promise<RealtimeStatsSummaryResponse> {
-    return apiRequest<RealtimeStatsSummaryResponse>(`/api/v1/matches/${matchId}/stats/realtime-summary`);
+    return apiRequest<RealtimeStatsSummaryResponse>(`/api/matches/${matchId}/stats/realtime-summary`);
   }
 
   /**
    * 刷新比赛中所有球员的统计数据
    */
   static async refreshMatchPlayerStats(matchId: string): Promise<{ success: boolean; message: string }> {
-    return apiRequest(`/api/v1/matches/${matchId}/player-stats/refresh`, {
+    return apiRequest(`/api/matches/${matchId}/player-stats/refresh`, {
       method: 'POST',
     });
   }
@@ -150,7 +150,7 @@ export class PlayerStatsApiService {
    * 刷新单个球员的统计数据
    */
   static async refreshPlayerStats(matchId: string, globalId: number): Promise<SinglePlayerStatsResponse> {
-    return apiRequest<SinglePlayerStatsResponse>(`/api/v1/matches/${matchId}/players/${globalId}/stats/refresh`, {
+    return apiRequest<SinglePlayerStatsResponse>(`/api/matches/${matchId}/players/${globalId}/stats/refresh`, {
       method: 'POST',
     });
   }
@@ -159,7 +159,7 @@ export class PlayerStatsApiService {
    * 同步轨迹数据
    */
   static async syncTrajectoryData(matchId: string): Promise<{ success: boolean; message: string }> {
-    return apiRequest(`/api/v1/matches/${matchId}/trajectory/sync`, {
+    return apiRequest(`/api/matches/${matchId}/trajectory/sync`, {
       method: 'POST',
     });
   }
