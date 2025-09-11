@@ -4,7 +4,10 @@
  */
 
 // API配置
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+    ? 'http://47.239.73.57:8001'  // Production server
+    : 'http://localhost:8000');   // Local development
 
 // 认证相关
 let authToken: string | null = null;

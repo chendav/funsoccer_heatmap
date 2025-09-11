@@ -40,7 +40,10 @@ export class SSEEventService {
   constructor(baseUrl?: string) {
     // Connect directly to backend SSE endpoint
     // Vercel doesn't support SSE in API routes, so we must connect directly
-    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_API_BASE || 'https://api.funsoccer.app';
+    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_API_BASE || 
+                   (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+                     ? 'http://47.239.73.57:8001'  // Production server
+                     : 'http://localhost:8000');   // Local development
     this.clientId = this.generateClientId();
   }
 
